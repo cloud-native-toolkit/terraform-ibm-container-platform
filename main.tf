@@ -188,17 +188,12 @@ resource "null_resource" "delete_ibmcloud_chart" {
   }
 }
 
-data "helm_repository" "toolkit-charts" {
-  name = "toolkit-charts"
-  url  = "https://ibm-garage-cloud.github.io/toolkit-charts"
-}
-
 resource "helm_release" "ibmcloud_config" {
   depends_on = [null_resource.delete_ibmcloud_chart]
 
   name         = local.ibmcloud_release_name
   chart        = "ibmcloud"
-  repository   = data.helm_repository.toolkit-charts.name
+  repository   = "https://ibm-garage-cloud.github.io/toolkit-charts"
   version      = "0.1.3"
   namespace    = local.config_namespace
 
