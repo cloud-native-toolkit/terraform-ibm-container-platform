@@ -46,6 +46,12 @@ output "type" {
   depends_on  = [helm_release.ibmcloud_config]
 }
 
+output "type_code" {
+  value       = local.cluster_type_code
+  description = "The type of cluster (openshift or ocp4 or ocp3 or kubernetes)"
+  depends_on  = [helm_release.ibmcloud_config]
+}
+
 output "version" {
   value       = data.local_file.cluster_version.content
   description = "The point release version number of cluster (3.11 or 4.3 or 1.16)"
