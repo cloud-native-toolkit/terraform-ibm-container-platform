@@ -57,7 +57,19 @@ locals {
   ibmcloud_release_name = "ibmcloud-config"
 }
 
+resource "null_resource" "create_dirs" {
+  provisioner "local-exec" {
+    command = "mkdir -p ${local.tmp_dir}"
+  }
+
+  provisioner "local-exec" {
+    command = "mkdir -p ${local.cluster_config_dir}"
+  }
+}
+
 data "ibm_container_cluster_versions" "cluster_versions" {
+  depends_on = [null_resource.create_dirs]
+
   resource_group_id = data.ibm_resource_group.resource_group.id
 }
 
@@ -94,17 +106,10 @@ data "ibm_container_vpc_cluster" "config" {
   resource_group_id = data.ibm_resource_group.resource_group.id
 }
 
-resource "null_resource" "create_cluster_config_dir" {
-  provisioner "local-exec" {
-    command = "mkdir -p ${local.cluster_config_dir}"
-  }
-}
-
 data "ibm_container_cluster_config" "cluster" {
   depends_on        = [
     ibm_container_cluster.create_cluster,
     null_resource.ibmcloud_login,
-    null_resource.create_cluster_config_dir
   ]
 
   cluster_name_id   = local.cluster_name
