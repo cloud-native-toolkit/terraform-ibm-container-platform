@@ -123,7 +123,7 @@ resource "null_resource" "delete_ibmcloud_chart" {
     command = "${path.module}/scripts/helm3-uninstall.sh ${local.ibmcloud_release_name} ${local.config_namespace}"
   }
 }
-adwfadaddDdDff
+
 resource "helm_release" "ibmcloud_config" {
   depends_on = [null_resource.delete_ibmcloud_chart]
 
