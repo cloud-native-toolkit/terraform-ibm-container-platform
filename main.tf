@@ -21,8 +21,6 @@ locals {
   cluster_config_dir    = pathexpand("~/.kube")
   cluster_type_file     = "${path.cwd}/.tmp/cluster_type.val"
   cluster_version_file  = "${path.cwd}/.tmp/cluster_version.val"
-  registry_url_file     = "${path.cwd}/.tmp/registry_url.val"
-  registry_url          = data.local_file.registry_url.content
   name_prefix           = var.name_prefix != "" ? var.name_prefix : var.resource_group_name
   name_list             = [local.name_prefix, "cluster"]
   cluster_name          = var.cluster_name != "" ? var.cluster_name : join("-", local.name_list)
