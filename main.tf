@@ -90,7 +90,7 @@ resource "ibm_container_cluster" "create_cluster" {
 
 data "ibm_container_cluster" "config" {
   count      = var.is_vpc ? 0 : 1
-  depends_on = [ibm_container_cluster.create_cluster]
+  depends_on = [ibm_container_cluster.create_cluster, null_resource.create_dirs]
 
   cluster_name_id   = local.cluster_name
   alb_type          = "public"
@@ -99,7 +99,7 @@ data "ibm_container_cluster" "config" {
 
 data "ibm_container_vpc_cluster" "config" {
   count      = var.is_vpc ? 1 : 0
-  depends_on = [ibm_container_cluster.create_cluster]
+  depends_on = [ibm_container_cluster.create_cluster, null_resource.create_dirs]
 
   cluster_name_id   = local.cluster_name
   alb_type          = "public"
@@ -149,6 +149,8 @@ resource "null_resource" "oc_login" {
 
 # this should probably be moved to a separate module that operates at a namespace level
 resource "null_resource" "create_registry_namespace" {
+  depends_on = [null_resource.create_dirs]
+
   provisioner "local-exec" {
     command = "${path.module}/scripts/create-registry-namespace.sh ${var.resource_group_name} ${var.cluster_region} ${local.registry_url_file}"
 
@@ -165,6 +167,7 @@ data "local_file" "registry_url" {
 }
 
 resource "null_resource" "setup_kube_config" {
+  depends_on = [null_resource.create_dirs]
   count = var.cluster_type == "kubernetes" ? 1 : 0
 
   provisioner "local-exec" {
