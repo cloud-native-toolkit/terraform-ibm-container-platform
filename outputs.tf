@@ -42,19 +42,29 @@ output "config_file_path" {
 
 output "type" {
   value       = local.cluster_type
-  description = "The type of cluster (openshift or ocp4 or ocp3 or kubernetes)"
+  description = "(Deprecated, use platform.type) The type of cluster (openshift or ocp4 or ocp3 or kubernetes)"
   depends_on  = [helm_release.ibmcloud_config]
 }
 
 output "type_code" {
   value       = local.cluster_type_code
-  description = "The type of cluster (openshift or ocp4 or ocp3 or kubernetes)"
+  description = "(Deprecated, use platform.type_code) The type of cluster (openshift or ocp4 or ocp3 or kubernetes)"
+  depends_on  = [helm_release.ibmcloud_config]
+}
+
+output "platform" {
+  value       = {
+    type      = local.cluster_type
+    type_code = local.cluster_type_code
+    version   = data.local_file.cluster_version.content
+  }
+  description = "Configuration values for the cluster platform"
   depends_on  = [helm_release.ibmcloud_config]
 }
 
 output "version" {
   value       = data.local_file.cluster_version.content
-  description = "The point release version number of cluster (3.11 or 4.3 or 1.16)"
+  description = "(Deprecated, use platform.version) The point release version number of cluster (3.11 or 4.3 or 1.16)"
   depends_on  = [helm_release.ibmcloud_config]
 }
 
