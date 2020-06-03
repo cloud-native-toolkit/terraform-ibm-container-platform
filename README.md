@@ -11,4 +11,7 @@ This module has the following pre-requisites in order to run:
 - The `IBM Cloud cli` must be installed. Information on installing the cli can be found here - https://cloud.ibm.com/docs/cli?topic=cloud-cli-getting-started
 - linux shell environment
 
+## Dependencies
 
+- IBM Cloud Terraform provider >= 1.5.3
+- Helm >= 1.1.1
