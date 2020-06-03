@@ -1,5 +1,5 @@
 provider "ibm" {
-  version = ">= 1.2.1"
+  version = ">= 1.6.0"
 }
 provider "helm" {
   version = ">= 1.1.1"
