@@ -139,14 +139,6 @@ data "local_file" "cluster_version" {
   filename = local.cluster_version_file
 }
 
-resource "null_resource" "oc_login" {
-  count      = var.cluster_type != "kubernetes" ? 1: 0
-
-  provisioner "local-exec" {
-    command = "oc login -u ${var.login_user} -p ${var.ibmcloud_api_key} --server=${local.server_url} > /dev/null"
-  }
-}
-
 # this should probably be moved to a separate module that operates at a namespace level
 resource "null_resource" "create_registry_namespace" {
   depends_on = [null_resource.create_dirs]
@@ -168,7 +160,6 @@ data "local_file" "registry_url" {
 
 resource "null_resource" "setup_kube_config" {
   depends_on = [null_resource.create_dirs]
-  count = var.cluster_type == "kubernetes" ? 1 : 0
 
   provisioner "local-exec" {
     command = "rm -f ${local.cluster_config_dir}/config && ln -s ${data.ibm_container_cluster_config.cluster.config_file_path} ${local.cluster_config_dir}/config"
@@ -189,7 +180,7 @@ resource "null_resource" "create_cluster_pull_secret_iks" {
 }
 
 resource "null_resource" "delete_ibmcloud_chart" {
-  depends_on = [null_resource.oc_login, null_resource.setup_kube_config]
+  depends_on = [null_resource.setup_kube_config]
 
   provisioner "local-exec" {
     command = "${path.module}/scripts/helm3-uninstall.sh ${local.ibmcloud_release_name} ${local.config_namespace}"
