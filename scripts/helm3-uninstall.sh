@@ -3,10 +3,6 @@
 RELEASE_NAME="$1"
 NAMESPACE="$2"
 
-if [[ -n "${KUBECONFIG_IKS}" ]]; then
-    export KUBECONFIG="${KUBECONFIG_IKS}"
-fi
-
 SECRET_NAME=$(kubectl get secret --namespace "${NAMESPACE}" -o=custom-columns=name:.metadata.name | grep -E "sh.helm.release.*ibmcloud-config")
 kubectl delete "secret/${SECRET_NAME}" --namespace "${NAMESPACE}" 1> /dev/null 2> /dev/null
 kubectl delete configmap/ibmcloud-config -namespace "${NAMESPACE}" 1> /dev/null 2> /dev/null
