@@ -1,5 +1,5 @@
 module "dev_cluster" {
-  source = "github.com/ibm-garage-cloud/terraform-ibm-container-platform.git"
+  source = "./module"
 
   resource_group_name     = var.resource_group_name
   cluster_name            = var.cluster_name
@@ -15,4 +15,5 @@ module "dev_cluster" {
   cluster_machine_type    = ""
   cluster_worker_count    = 3
   cluster_hardware        = ""
+  registry_namespace      = "${var.resource_group_name}-test"
 }
