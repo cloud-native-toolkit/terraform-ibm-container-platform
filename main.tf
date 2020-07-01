@@ -5,7 +5,7 @@ provider "helm" {
   version = ">= 1.1.1"
 
   kubernetes {
-    config_path = local.cluster_config
+    config_path = local.config_file_path
   }
 }
 provider "null" {
@@ -25,14 +25,12 @@ resource "null_resource" "ibmcloud_login" {
       REGION         = var.cluster_region
       RESOURCE_GROUP = var.resource_group_name
       APIKEY         = var.ibmcloud_api_key
-      KUBECONFIG     = local.cluster_config
     }
   }
 }
 
 locals {
-  cluster_config_dir    = "${path.cwd}/.kube"
-  cluster_config        = "${local.cluster_config_dir}/config"
+  cluster_config_dir    = pathexpand("~/.kube")
   cluster_type_file     = "${path.cwd}/.tmp/cluster_type.val"
   cluster_version_file  = "${path.cwd}/.tmp/cluster_version.val"
   registry_url_file     = "${path.cwd}/.tmp/registry_url.val"
@@ -42,10 +40,11 @@ locals {
   cluster_name          = var.cluster_name != "" ? var.cluster_name : join("-", local.name_list)
   tmp_dir               = "${path.cwd}/.tmp"
   config_namespace      = "default"
+  config_file_path      = var.cluster_type == "kubernetes" ? data.ibm_container_cluster_config.cluster.config_file_path : ""
   cluster_type_tag      = var.cluster_type == "kubernetes" ? "iks" : "ocp"
-  server_url            = var.is_vpc ? length(data.ibm_container_vpc_cluster.config) > 0 ? data.ibm_container_vpc_cluster.config[0].public_service_endpoint_url : "" : length(data.ibm_container_cluster.config) > 0 ? data.ibm_container_cluster.config[0].public_service_endpoint_url : ""
-  ingress_hostname      = var.is_vpc ? length(data.ibm_container_vpc_cluster.config) > 0 ? data.ibm_container_vpc_cluster.config[0].ingress_hostname : "" : length(data.ibm_container_cluster.config) > 0 ? data.ibm_container_cluster.config[0].ingress_hostname : ""
-  tls_secret            = var.is_vpc ? length(data.ibm_container_vpc_cluster.config) > 0 ? data.ibm_container_vpc_cluster.config[0].ingress_secret : "" : length(data.ibm_container_cluster.config) > 0 ? data.ibm_container_cluster.config[0].ingress_secret : ""
+  server_url            = var.is_vpc ? data.ibm_container_vpc_cluster.config[0].public_service_endpoint_url : data.ibm_container_cluster.config[0].public_service_endpoint_url
+  ingress_hostname      = var.is_vpc ? data.ibm_container_vpc_cluster.config[0].ingress_hostname : data.ibm_container_cluster.config[0].ingress_hostname
+  tls_secret            = var.is_vpc ? data.ibm_container_vpc_cluster.config[0].ingress_secret : data.ibm_container_cluster.config[0].ingress_secret
   openshift_versions    = {
   for version in data.ibm_container_cluster_versions.cluster_versions.valid_openshift_versions:
   substr(version, 0, 3) => "${version}_openshift"
@@ -130,7 +129,6 @@ resource "null_resource" "get_cluster_version" {
     environment = {
       CLUSTER_NAME = local.cluster_name
       FILE         = local.cluster_version_file
-      KUBECONFIG   = local.cluster_config
     }
   }
 }
@@ -149,8 +147,7 @@ resource "null_resource" "create_registry_namespace" {
     command = "${path.module}/scripts/create-registry-namespace.sh ${var.resource_group_name} ${var.cluster_region} ${local.registry_url_file}"
 
     environment = {
-      APIKEY      = var.ibmcloud_api_key
-      KUBECONFIG  = local.cluster_config
+      APIKEY = var.ibmcloud_api_key
     }
   }
 }
@@ -165,7 +162,7 @@ resource "null_resource" "setup_kube_config" {
   depends_on = [null_resource.create_dirs]
 
   provisioner "local-exec" {
-    command = "rm -f ${local.cluster_config} && ln -s ${data.ibm_container_cluster_config.cluster.config_file_path} ${local.cluster_config}"
+    command = "rm -f ${local.cluster_config_dir}/config && ln -s ${data.ibm_container_cluster_config.cluster.config_file_path} ${local.cluster_config_dir}/config"
   }
 
   provisioner "local-exec" {
@@ -179,10 +176,6 @@ resource "null_resource" "create_cluster_pull_secret_iks" {
 
   provisioner "local-exec" {
     command = "${path.module}/scripts/cluster-pull-secret-apply.sh ${local.cluster_name}"
-
-    environment = {
-      KUBECONFIG     = local.cluster_config
-    }
   }
 }
 
@@ -191,10 +184,6 @@ resource "null_resource" "delete_ibmcloud_chart" {
 
   provisioner "local-exec" {
     command = "${path.module}/scripts/helm3-uninstall.sh ${local.ibmcloud_release_name} ${local.config_namespace}"
-
-    environment = {
-      KUBECONFIG     = local.cluster_config
-    }
   }
 }
 
