@@ -19,7 +19,7 @@ data "ibm_resource_group" "resource_group" {
 
 resource "null_resource" "ibmcloud_login" {
   provisioner "local-exec" {
-    command = "ibmcloud login -r $${REGION} -g $${RESOURCE_GROUP} --apikey $${APIKEY} > /dev/null"
+    command = "ibmcloud login -r ${var.cluster_region} -g ${var.resource_group_name} --apikey $${APIKEY} > /dev/null"
 
     environment = {
       REGION         = var.cluster_region
@@ -55,6 +55,7 @@ locals {
   cluster_type_code     = var.cluster_type == "openshift" ? "ocp3" : var.cluster_type
   cluster_version       = local.cluster_type_code == "ocp4" ? local.openshift_versions["4.3"] : (local.cluster_type_code == "ocp3" ? local.openshift_versions["3.1"] : "")
   ibmcloud_release_name = "ibmcloud-config"
+  registry_namespace    = var.registry_namespace != "" ? var.registry_namespace : var.resource_group_name
 }
 
 resource "null_resource" "create_dirs" {
@@ -141,10 +142,10 @@ data "local_file" "cluster_version" {
 
 # this should probably be moved to a separate module that operates at a namespace level
 resource "null_resource" "create_registry_namespace" {
-  depends_on = [null_resource.create_dirs]
+  depends_on = [null_resource.create_dirs, null_resource.ibmcloud_login]
 
   provisioner "local-exec" {
-    command = "${path.module}/scripts/create-registry-namespace.sh ${var.resource_group_name} ${var.cluster_region} ${local.registry_url_file}"
+    command = "${path.module}/scripts/create-registry-namespace.sh ${local.registry_namespace} ${var.cluster_region} ${local.registry_url_file}"
 
     environment = {
       APIKEY = var.ibmcloud_api_key

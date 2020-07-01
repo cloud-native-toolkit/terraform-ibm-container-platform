@@ -90,3 +90,9 @@ variable "is_vpc" {
   description = "Flag indicating that the cluster uses vpc infrastructure"
   default     = false
 }
+
+variable "registry_namespace" {
+  type        = string
+  description = "The namespace that will be created in the IBM Cloud image registry. If not provided the value will default to the resource group"
+  default     = ""
+}
