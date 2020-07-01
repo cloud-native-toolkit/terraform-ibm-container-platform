@@ -97,3 +97,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  notify:
+    needs: release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Publish repository dispatch
+        run: |
+          curl -XPOST -u "${{secrets.USERNAME}}:${{secrets.TOKEN}}" -H "Accept: application/vnd.github.everest-preview+json" -H "Content-Type: application/json" https://api.github.com/repos/${{env.NOTIFY_SLUG}}/dispatches --data '{"event_type": "released"}'
+        env:
+          NOTIFY_SLUG: ibm-garage-cloud/ibm-garage-iteration-zero
