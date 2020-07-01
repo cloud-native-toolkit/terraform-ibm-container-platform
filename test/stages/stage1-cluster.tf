@@ -15,4 +15,5 @@ module "dev_cluster" {
   cluster_machine_type    = ""
   cluster_worker_count    = 3
   cluster_hardware        = ""
+  registry_namespace      = "${var.resource_group_name}-test"
 }
