@@ -48,13 +48,13 @@ locals {
   tls_secret            = var.is_vpc ? length(data.ibm_container_vpc_cluster.config) > 0 ? data.ibm_container_vpc_cluster.config[0].ingress_secret : "" : length(data.ibm_container_cluster.config) > 0 ? data.ibm_container_cluster.config[0].ingress_secret : ""
   openshift_versions    = {
   for version in data.ibm_container_cluster_versions.cluster_versions.valid_openshift_versions:
-  substr(version, 0, 1) => "${version}_openshift"
+  substr(version, 0, 3) => "${version}_openshift"
   }
   # value should be openshift or kubernetes
   cluster_type          = var.cluster_type == "ocp3" ? "openshift" : (var.cluster_type == "ocp4" ? "openshift" : var.cluster_type)
   # value should be ocp4, ocp3, or kubernetes
   cluster_type_code     = var.cluster_type == "openshift" ? "ocp3" : var.cluster_type
-  cluster_version       = local.cluster_type_code == "ocp4" ? local.openshift_versions["4"] : (local.cluster_type_code == "ocp3" ? local.openshift_versions["3"] : "")
+  cluster_version       = local.cluster_type_code == "ocp4" ? local.openshift_versions["4.3"] : (local.cluster_type_code == "ocp3" ? local.openshift_versions["3.1"] : "")
   ibmcloud_release_name = "ibmcloud-config"
 }
 
