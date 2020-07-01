@@ -50,9 +50,9 @@ locals {
   substr(version, 0, 3) => "${version}_openshift"
   }
   # value should be openshift or kubernetes
-  cluster_type          = var.cluster_type == "ocp3" ? "openshift" : (var.cluster_type == "ocp4" ? "openshift" : (substr(var.cluster_type, 0, 3) == "iks" ? "kuberntes" : var.cluster_type))
+  cluster_type          = var.cluster_type == "ocp3" ? "openshift" : (var.cluster_type == "ocp4" ? "openshift" : (substr(var.cluster_type, 0, 3) == "iks" ? "kubernetes" : var.cluster_type))
   # value should be ocp4, ocp3, or kubernetes
-  cluster_type_code     = var.cluster_type == "openshift" ? "ocp3" : (substr(var.cluster_type, 0, 3) == "iks" ? "kuberntes" : var.cluster_type)
+  cluster_type_code     = var.cluster_type == "openshift" ? "ocp3" : (substr(var.cluster_type, 0, 3) == "iks" ? "kubernetes" : var.cluster_type)
   cluster_version       = local.cluster_type_code == "ocp4" ? local.openshift_versions["4.3"] : (local.cluster_type_code == "ocp3" ? local.openshift_versions["3.1"] : "")
   ibmcloud_release_name = "ibmcloud-config"
   registry_namespace    = var.registry_namespace != "" ? var.registry_namespace : var.resource_group_name
