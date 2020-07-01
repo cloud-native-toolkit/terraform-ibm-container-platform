@@ -1,6 +1,8 @@
+name: Notify
+
 on:
   release:
-    types: [published]
+    types: [created]
 
 jobs:
   notify:
