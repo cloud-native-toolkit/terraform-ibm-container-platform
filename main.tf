@@ -184,6 +184,10 @@ resource "null_resource" "delete_ibmcloud_chart" {
 
   provisioner "local-exec" {
     command = "${path.module}/scripts/helm3-uninstall.sh ${local.ibmcloud_release_name} ${local.config_namespace}"
+
+    environment = {
+      KUBECONFIG = local.config_file_path
+    }
   }
 }
 
