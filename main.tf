@@ -41,7 +41,6 @@ locals {
   cluster_name          = var.cluster_name != "" ? var.cluster_name : join("-", local.name_list)
   tmp_dir               = "${path.cwd}/.tmp"
   config_namespace      = "default"
-  cluster_type_tag      = var.cluster_type == "kubernetes" ? "iks" : "ocp"
   server_url            = var.is_vpc ? length(data.ibm_container_vpc_cluster.config) > 0 ? data.ibm_container_vpc_cluster.config[0].public_service_endpoint_url : "" : length(data.ibm_container_cluster.config) > 0 ? data.ibm_container_cluster.config[0].public_service_endpoint_url : ""
   ingress_hostname      = var.is_vpc ? length(data.ibm_container_vpc_cluster.config) > 0 ? data.ibm_container_vpc_cluster.config[0].ingress_hostname : "" : length(data.ibm_container_cluster.config) > 0 ? data.ibm_container_cluster.config[0].ingress_hostname : ""
   tls_secret            = var.is_vpc ? length(data.ibm_container_vpc_cluster.config) > 0 ? data.ibm_container_vpc_cluster.config[0].ingress_secret : "" : length(data.ibm_container_cluster.config) > 0 ? data.ibm_container_cluster.config[0].ingress_secret : ""
@@ -50,9 +49,11 @@ locals {
   substr(version, 0, 3) => "${version}_openshift"
   }
   # value should be openshift or kubernetes
-  cluster_type          = var.cluster_type == "ocp3" ? "openshift" : (var.cluster_type == "ocp4" ? "openshift" : (substr(var.cluster_type, 0, 3) == "iks" ? "kubernetes" : var.cluster_type))
+  cluster_type_cleaned  = regex("(kubernetes|iks|openshift|ocp3|ocp4).*", var.cluster_type)
+  cluster_type          = local.cluster_type_cleaned == "ocp3" ? "openshift" : (local.cluster_type_cleaned == "ocp4" ? "openshift" : (local.cluster_type_cleaned == "iks" ? "kubernetes" : local.cluster_type_cleaned))
   # value should be ocp4, ocp3, or kubernetes
-  cluster_type_code     = var.cluster_type == "openshift" ? "ocp3" : (substr(var.cluster_type, 0, 3) == "iks" ? "kubernetes" : var.cluster_type)
+  cluster_type_code     = local.cluster_type_cleaned == "openshift" ? "ocp3" : (local.cluster_type_cleaned == "iks" ? "kubernetes" : local.cluster_type_cleaned)
+  cluster_type_tag      = local.cluster_type == "kubernetes" ? "iks" : "ocp"
   cluster_version       = local.cluster_type_code == "ocp4" ? local.openshift_versions["4.3"] : (local.cluster_type_code == "ocp3" ? local.openshift_versions["3.1"] : "")
   ibmcloud_release_name = "ibmcloud-config"
   registry_namespace    = var.registry_namespace != "" ? var.registry_namespace : var.resource_group_name
