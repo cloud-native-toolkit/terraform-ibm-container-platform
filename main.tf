@@ -250,5 +250,10 @@ resource "helm_release" "ibmcloud_config" {
     name  = "cluster_version"
     value = local.cluster_version
   }
+
+  set {
+    name  = "registry_namespace"
+    value = local.registry_namespace
+  }
 }
 
