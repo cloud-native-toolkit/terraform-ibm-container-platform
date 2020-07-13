@@ -80,12 +80,6 @@ output "login_password" {
   depends_on  = [helm_release.ibmcloud_config]
 }
 
-output "ibmcloud_api_key" {
-  value       = var.ibmcloud_api_key
-  description = "The API key for the environment"
-  depends_on  = [helm_release.ibmcloud_config]
-}
-
 output "tls_secret_name" {
   value       = local.tls_secret
   description = "The name of the secret containin the tls information for the cluster"

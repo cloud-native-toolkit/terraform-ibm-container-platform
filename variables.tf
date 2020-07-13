@@ -52,12 +52,6 @@ variable "cluster_region" {
   description = "The IBM Cloud region where the cluster will be/has been installed."
 }
 
-variable "kubeconfig_download_dir" {
-  type        = string
-  description = "Directory where kubeconfig will be downloaded."
-  default     = ""
-}
-
 variable "cluster_type" {
   type        = string
   description = "The type of cluster that should be created (openshift or ocp3 or ocp4 or kubernetes)"
