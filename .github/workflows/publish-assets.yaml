@@ -30,7 +30,7 @@ jobs:
         run: |
           ./.github/scripts/build-module-metadata.sh ${{ github.event.release.tag_name }} ${{ env.DIST_DIR }} ${{ github.repository }}
           cp README.md ${{ env.DIST_DIR }}
-          mkdir ./scripts && cp ./.github/scripts/merge-module-metadata.sh ./scripts
+          mkdir -p ./scripts && cp ./.github/scripts/merge-module-metadata.sh ./scripts
 
       - name: Checkout
         uses: actions/checkout@v2
