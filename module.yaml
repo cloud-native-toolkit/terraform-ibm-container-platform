@@ -1,8 +1,0 @@
-name: ibm-container-platform
-description: Provisions a new or connects to an existing IBM Cloud contaienr platform (Kubernetes or OpenShift)
-platforms:
-  - kubernetes
-  - ocp3
-  - ocp4
-tags:
-  - cluster

@@ -1,0 +1,108 @@
+id: github.com/ibm-garage-cloud/terraform-ibm-container-platform
+name: ibm-container-platform
+description: Provisions a new or connects to an existing IBM Cloud contaienr platform
+  (Kubernetes or OpenShift)
+platforms:
+- kubernetes
+- ocp3
+- ocp4
+tags:
+- cluster
+versions:
+- version: v1.11.6
+  variables:
+  - name: resource_group_name
+    type: string
+    description: The name of the IBM Cloud resource group where the cluster will be
+      created/can be found.
+  - name: cluster_name
+    type: string
+    description: The name of the cluster that will be created within the resource
+      group
+  - name: cluster_machine_type
+    type: string
+    description: The machine type for the cluster worker nodes. The list of available
+      machine types can be found using `ibmcloud ks machine-types <data-center>`
+    optional: true
+  - name: cluster_worker_count
+    type: number
+    description: The number of worker nodes for the cluster
+    optional: true
+  - name: cluster_hardware
+    type: string
+    description: The type of hardware for the cluster (shared, dedicated)
+    optional: true
+  - name: private_vlan_id
+    type: string
+    description: Existing private VLAN id for cluster creation.
+  - name: public_vlan_id
+    type: string
+    description: Existing public VLAN number for cluster creation.
+  - name: vlan_datacenter
+    type: string
+    description: Datacenter for VLANs defined in private_vlan_number and public_vlan_number.
+  - name: cluster_region
+    type: string
+    description: The IBM Cloud region where the cluster will be/has been installed.
+  - name: cluster_type
+    type: string
+    description: The type of cluster that should be created (openshift or ocp3 or
+      ocp4 or kubernetes)
+  - name: ibmcloud_api_key
+    type: string
+    description: The IBM Cloud api token
+  - name: cluster_exists
+    type: string
+    description: Flag indicating if the cluster already exists (true or false)
+  - name: login_user
+    type: string
+    description: The username to log in to openshift
+    optional: true
+  - name: name_prefix
+    type: string
+    description: The prefix name for the service. If not provided it will default
+      to the resource group name
+    optional: true
+  - name: is_vpc
+    type: bool
+    description: Flag indicating that the cluster uses vpc infrastructure
+    optional: true
+  - name: registry_namespace
+    type: string
+    description: The namespace that will be created in the IBM Cloud image registry.
+      If not provided the value will default to the resource group
+    optional: true
+  outputs:
+  - name: id
+    description: ID of the cluster.
+  - name: name
+    description: Name of the cluster.
+  - name: resource_group_name
+    description: Name of the resource group containing the cluster.
+  - name: region
+    description: Region containing the cluster.
+  - name: ingress_hostname
+    description: Ingress hostname of the cluster.
+  - name: server_url
+    description: The url of the control server.
+  - name: config_file_path
+    description: Path to the config file for the cluster.
+  - name: type
+    description: (Deprecated, use platform.type) The type of cluster (openshift or
+      ocp4 or ocp3 or kubernetes)
+  - name: type_code
+    description: (Deprecated, use platform.type_code) The type of cluster (openshift
+      or ocp4 or ocp3 or kubernetes)
+  - name: platform
+    description: Configuration values for the cluster platform
+  - name: version
+    description: (Deprecated, use platform.version) The point release version number
+      of cluster (3.11 or 4.3 or 1.16)
+  - name: login_user
+    description: The username used to log into the openshift cli
+  - name: login_password
+    description: The password used to log into the openshift cli
+  - name: tls_secret_name
+    description: The name of the secret containin the tls information for the cluster
+  - name: tag
+    description: The tag vased on the cluster type
