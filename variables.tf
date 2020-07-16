@@ -11,20 +11,6 @@ variable "cluster_name" {
 }
 
 # Cluster Variables
-variable "cluster_machine_type" {
-  type        = string
-  description = "The machine type for the cluster worker nodes. The list of available machine types can be found using `ibmcloud ks machine-types <data-center>`"
-  default     = "b3c.4x16"
-}
-
-# Cluster Variables
-variable "cluster_worker_count" {
-  type        = number
-  description = "The number of worker nodes for the cluster"
-  default     = 2
-}
-
-# Cluster Variables
 variable "cluster_hardware" {
   type        = string
   description = "The type of hardware for the cluster (shared, dedicated)"
@@ -32,19 +18,44 @@ variable "cluster_hardware" {
 }
 
 # Cluster Variables
-variable "private_vlan_id" {
-  type        = string
-  description = "Existing private VLAN id for cluster creation."
+variable "cluster_worker_count" {
+  type        = number
+  description = "(Deprecated, use VPC) The number of worker nodes that should be provisioned for classic infrastructure"
+  default     = 3
 }
 
-variable "public_vlan_id" {
+variable "cluster_machine_type" {
   type        = string
-  description = "Existing public VLAN number for cluster creation."
+  description = "(Deprecated, use VPC) The machine type that will be provisioned for classic infrastructure"
+  default     = "b3c.4x16"
 }
 
 variable "vlan_datacenter" {
   type        = string
-  description = "Datacenter for VLANs defined in private_vlan_number and public_vlan_number."
+  description = "(Deprecated, use VPC) The datacenter that should be used for classic infrastructure provisioning"
+  default     = ""
+}
+
+variable "private_vlan_id" {
+  type        = string
+  description = "(Deprecated, use VPC) The private vlan id that should be used for classic infrastructure provisioning"
+  default     = ""
+}
+
+variable "public_vlan_id" {
+  type        = string
+  description = "(Deprecated, use VPC) The public vlan id that should be used for classic infrastructure provisioning"
+  default     = ""
+}
+
+# VPC Variables
+variable "vpcs" {
+  type        = list(object({
+    zone_name = string
+    worker_count = number
+    flavor = string
+  }))
+  default = []
 }
 
 variable "cluster_region" {
@@ -63,7 +74,7 @@ variable "ibmcloud_api_key" {
 }
 
 variable "cluster_exists" {
-  type        = string
+  type        = bool
   description = "Flag indicating if the cluster already exists (true or false)"
 }
 
