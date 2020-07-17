@@ -59,7 +59,7 @@ resource "ibm_container_vpc_cluster" "cluster" {
   flavor            = var.vpcs[0].flavor
   worker_count      = var.vpcs[0].worker_count
   kube_version      = local.cluster_version
-  entitlement       = "cloud_pak"
+  entitlement       = local.cluster_type_code == "ocp4" ? var.ocp_entitlement : ""
   cos_instance_crn  = local.cluster_type_code == "ocp4" ? ibm_resource_instance.cos_instance[0].id : ""
   resource_group_id = data.ibm_resource_group.resource_group.id
   wait_till         = "IngressReady"
