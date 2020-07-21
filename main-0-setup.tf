@@ -48,6 +48,7 @@ locals {
   cluster_version       = local.kubernetes_versions[local.cluster_type_cleaned]
   ibmcloud_release_name = "ibmcloud-config"
   registry_namespace    = var.registry_namespace != "" ? var.registry_namespace : var.resource_group_name
+  vpc_zone_names        = split(",", var.vpc_zone_names)
 }
 
 resource "null_resource" "create_dirs" {

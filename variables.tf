@@ -20,11 +20,17 @@ variable "cluster_hardware" {
 # Cluster Variables
 variable "cluster_worker_count" {
   type        = number
-  description = "(Deprecated, use VPC) The number of worker nodes that should be provisioned for classic infrastructure"
+  description = "The number of worker nodes that should be provisioned for classic infrastructure"
   default     = 3
 }
 
 variable "cluster_machine_type" {
+  type        = string
+  description = "(Deprecated, use VPC) The machine type that will be provisioned for classic infrastructure"
+  default     = "b3c.4x16"
+}
+
+variable "flavor" {
   type        = string
   description = "(Deprecated, use VPC) The machine type that will be provisioned for classic infrastructure"
   default     = "b3c.4x16"
@@ -49,13 +55,10 @@ variable "public_vlan_id" {
 }
 
 # VPC Variables
-variable "vpcs" {
-  type        = list(object({
-    zone_name = string
-    worker_count = number
-    flavor = string
-  }))
-  default = []
+variable "vpc_zone_names" {
+  type        = string
+  description = "Comma-separated list of zones"
+  default     = ""
 }
 
 variable "cluster_region" {
