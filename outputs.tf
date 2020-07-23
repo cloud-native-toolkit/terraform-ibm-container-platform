@@ -7,7 +7,6 @@ output "id" {
 output "name" {
   value       = local.cluster_name
   description = "Name of the cluster."
-  depends_on  = [helm_release.ibmcloud_config]
 }
 
 output "resource_group_name" {
