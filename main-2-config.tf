@@ -144,8 +144,20 @@ resource "null_resource" "delete-consolelink-ir" {
   }
 }
 
+resource "null_resource" "delete-helm-ir" {
+  depends_on = [null_resource.setup_kube_config]
+
+  provisioner "local-exec" {
+    command = "kubectl delete secret -n ${local.namespace} -l name=ir || exit 0"
+
+    environment = {
+      KUBECONFIG = local.cluster_config
+    }
+  }
+}
+
 resource "helm_release" "image_registry" {
-  depends_on = [null_resource.delete-consolelink-ir]
+  depends_on = [null_resource.delete-consolelink-ir, null_resource.delete-helm-ir]
 
   name              = "ir"
   chart             = "tool-config"
@@ -191,8 +203,20 @@ resource "null_resource" "delete-consolelink-github" {
   }
 }
 
+resource "null_resource" "delete-helm-github" {
+  depends_on = [null_resource.setup_kube_config]
+
+  provisioner "local-exec" {
+    command = "kubectl delete secret -n ${local.namespace} -l name=github || exit 0"
+
+    environment = {
+      KUBECONFIG = local.cluster_config
+    }
+  }
+}
+
 resource "helm_release" "github" {
-  depends_on = [null_resource.delete-consolelink-github]
+  depends_on = [null_resource.delete-consolelink-github, null_resource.delete-helm-github]
 
   name              = "github"
   chart             = "tool-config"
