@@ -52,7 +52,8 @@ locals {
   cluster_version       = local.cluster_type_code == "ocp4" ? local.openshift_versions["4.3"] : (local.cluster_type_code == "ocp3" ? local.openshift_versions["3.1"] : "")
   ibmcloud_release_name = "ibmcloud-config"
   registry_namespace    = var.registry_namespace != "" ? var.registry_namespace : var.resource_group_name
-  vpc_zone_names        = split(",", var.vpc_zone_names)
+  vpc_zone_names        = var.vpc_zone_names
+  namespace             = "default"
 }
 
 resource "null_resource" "create_dirs" {
