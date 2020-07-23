@@ -56,9 +56,9 @@ variable "public_vlan_id" {
 
 # VPC Variables
 variable "vpc_zone_names" {
-  type        = string
-  description = "Comma-separated list of zones"
-  default     = ""
+  type        = list(string)
+  description = "List of vpc zones"
+  default     = []
 }
 
 variable "cluster_region" {
