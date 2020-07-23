@@ -131,3 +131,49 @@ resource "helm_release" "ibmcloud_config" {
   }
 }
 
+resource "null_resource" "delete-consolelink" {
+  count = local.cluster_type_code == "ocp4" ? 1 : 0
+  depends_on = [null_resource.setup_kube_config]
+
+  provisioner "local-exec" {
+    command = "kubectl delete consolelink -l grouping=garage-cloud-native-toolkit -l app=ir || exit 0"
+
+    environment = {
+      KUBECONFIG = local.cluster_config
+    }
+  }
+}
+
+resource "helm_release" "sysdig" {
+  depends_on = [null_resource.delete-consolelink]
+
+  name              = "ir"
+  chart             = "tool-config"
+  namespace         = local.namespace
+  repository        = "https://ibm-garage-cloud.github.io/toolkit-charts/"
+  timeout           = 1200
+  force_update      = true
+  replace           = true
+
+  disable_openapi_validation = true
+
+  set {
+    name  = "displayName"
+    value = "Image Registry"
+  }
+
+  set {
+    name  = "url"
+    value = "https://cloud.ibm.com/kubernetes/registry/main/images"
+  }
+
+  set {
+    name  = "applicationMenu"
+    value = true
+  }
+
+  set {
+    name  = "global.clusterType"
+    value = local.cluster_type_code
+  }
+}
