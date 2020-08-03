@@ -110,3 +110,15 @@ variable "ocp_entitlement" {
   description = "Value that is applied to the entitlements for OCP cluster provisioning"
   default     = "cloud_pak"
 }
+
+variable "cos_name" {
+  type        = string
+  description = "(optional) The name of the cos instance that will be used for the OCP 4 vpc instance"
+  default     = ""
+}
+
+variable "provision_cos" {
+  type        = bool
+  description = "Flag indicating that the cos instance should be provisioned, if necessary"
+  default     = true
+}

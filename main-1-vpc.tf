@@ -1,16 +1,23 @@
 
+locals {
+  cos_location = "global"
+  cos_name     = var.cos_name != "" ? var.cos_name : "${local.cluster_name}-ocp_cos_instance"
+}
+
 resource "ibm_is_vpc" "vpc" {
   count = !var.cluster_exists && var.is_vpc ? 1 : 0
 
-  name = "${local.cluster_name}-vpc"
+  name           = "${local.cluster_name}-vpc"
+  resource_group = data.ibm_resource_group.resource_group.id
 }
 
 resource "ibm_is_public_gateway" "vpc_gateway" {
   count = !var.cluster_exists && var.is_vpc ? length(local.vpc_zone_names) : 0
 
-  name  = "${local.cluster_name}-gateway-${format("%02s", count.index)}"
-  vpc   = ibm_is_vpc.vpc[0].id
-  zone  = local.vpc_zone_names[count.index]
+  name           = "${local.cluster_name}-gateway-${format("%02s", count.index)}"
+  vpc            = ibm_is_vpc.vpc[0].id
+  zone           = local.vpc_zone_names[count.index]
+  resource_group = data.ibm_resource_group.resource_group.id
 
   //User can configure timeouts
   timeouts {
@@ -43,12 +50,23 @@ resource "ibm_is_security_group_rule" "vpc_security_group_rule_tcp_k8s" {
 }
 
 resource "ibm_resource_instance" "cos_instance" {
-  count    = !var.cluster_exists && local.cluster_type_code == "ocp4" && var.is_vpc ? 1 : 0
+  count    = !var.cluster_exists && local.cluster_type_code == "ocp4" && var.is_vpc && var.provision_cos ? 1 : 0
 
-  name     = "${local.cluster_name}-ocp_cos_instance"
-  service  = "cloud-object-storage"
-  plan     = "standard"
-  location = "global"
+  name              = local.cos_name
+  service           = "cloud-object-storage"
+  plan              = "standard"
+  location          = local.cos_location
+  resource_group_id = data.ibm_resource_group.resource_group.id
+}
+
+data "ibm_resource_instance" "cos_instance" {
+  count      = !var.cluster_exists && local.cluster_type_code == "ocp4" && var.is_vpc ? 1 : 0
+  depends_on = [ibm_resource_instance.cos_instance]
+
+  name              = local.cos_name
+  service           = "cloud-object-storage"
+  location          = local.cos_location
+  resource_group_id = data.ibm_resource_group.resource_group.id
 }
 
 resource "ibm_container_vpc_cluster" "cluster" {
@@ -60,7 +78,7 @@ resource "ibm_container_vpc_cluster" "cluster" {
   worker_count      = var.cluster_worker_count
   kube_version      = local.cluster_version
   entitlement       = local.cluster_type_code == "ocp4" ? var.ocp_entitlement : ""
-  cos_instance_crn  = local.cluster_type_code == "ocp4" ? ibm_resource_instance.cos_instance[0].id : ""
+  cos_instance_crn  = local.cluster_type_code == "ocp4" ? data.ibm_resource_instance.cos_instance[0].id : ""
   resource_group_id = data.ibm_resource_group.resource_group.id
   wait_till         = "IngressReady"
 
