@@ -54,26 +54,28 @@ resource "null_resource" "create_cluster_pull_secret_iks" {
   }
 }
 
-resource "null_resource" "delete_ibmcloud_chart" {
+resource "null_resource" "delete-helm-cloud-config" {
   depends_on = [null_resource.setup_kube_config]
 
   provisioner "local-exec" {
-    command = "${path.module}/scripts/helm3-uninstall.sh ${local.ibmcloud_release_name} ${local.config_namespace}"
+    command = "kubectl delete secret -n ${local.namespace} -l name=${local.ibmcloud_release_name} || exit 0"
 
     environment = {
-      KUBECONFIG     = local.cluster_config
+      KUBECONFIG = local.cluster_config
     }
   }
 }
 
-resource "helm_release" "ibmcloud_config" {
-  depends_on = [null_resource.delete_ibmcloud_chart]
+resource "helm_release" "cloud_config" {
+  depends_on = [null_resource.setup_kube_config, null_resource.delete-helm-cloud-config]
 
   name         = local.ibmcloud_release_name
   chart        = "ibmcloud"
   repository   = "https://ibm-garage-cloud.github.io/toolkit-charts"
-  version      = "0.1.3"
+  version      = "0.2.2"
   namespace    = local.config_namespace
+  force_update      = true
+  replace           = true
 
   set_sensitive {
     name  = "apikey"
@@ -131,24 +133,11 @@ resource "helm_release" "ibmcloud_config" {
   }
 }
 
-resource "null_resource" "delete-consolelink-ir" {
-  count = local.cluster_type_code == "ocp4" ? 1 : 0
+resource "null_resource" "delete-helm-image-registry" {
   depends_on = [null_resource.setup_kube_config]
 
   provisioner "local-exec" {
-    command = "kubectl delete consolelink -l grouping=garage-cloud-native-toolkit -l app=ir || exit 0"
-
-    environment = {
-      KUBECONFIG = local.cluster_config
-    }
-  }
-}
-
-resource "null_resource" "delete-helm-ir" {
-  depends_on = [null_resource.setup_kube_config]
-
-  provisioner "local-exec" {
-    command = "kubectl delete secret -n ${local.namespace} -l name=ir || exit 0"
+    command = "set +e; kubectl delete secret -n ${local.namespace} -l name=ir; kubectl delete secret -n ${local.namespace} -l name=registry; exit 0"
 
     environment = {
       KUBECONFIG = local.cluster_config
@@ -157,9 +146,9 @@ resource "null_resource" "delete-helm-ir" {
 }
 
 resource "helm_release" "image_registry" {
-  depends_on = [null_resource.delete-consolelink-ir, null_resource.delete-helm-ir]
+  depends_on = [null_resource.setup_kube_config, null_resource.delete-helm-image-registry]
 
-  name              = "ir"
+  name              = "registry"
   chart             = "tool-config"
   namespace         = local.namespace
   repository        = "https://ibm-garage-cloud.github.io/toolkit-charts/"
@@ -180,6 +169,26 @@ resource "helm_release" "image_registry" {
   }
 
   set {
+    name  = "privateUrl"
+    value = local.registry_url
+  }
+
+  set {
+    name  = "otherSecrets.namespace"
+    value = local.registry_namespace
+  }
+
+  set {
+    name  = "username"
+    value = "iamapikey"
+  }
+
+  set_sensitive {
+    name  = "password"
+    value = var.ibmcloud_api_key
+  }
+
+  set {
     name  = "applicationMenu"
     value = true
   }
@@ -187,19 +196,6 @@ resource "helm_release" "image_registry" {
   set {
     name  = "global.clusterType"
     value = local.cluster_type_code
-  }
-}
-
-resource "null_resource" "delete-consolelink-github" {
-  count = local.cluster_type_code == "ocp4" ? 1 : 0
-  depends_on = [null_resource.setup_kube_config]
-
-  provisioner "local-exec" {
-    command = "kubectl delete consolelink -l grouping=garage-cloud-native-toolkit -l app=github || exit 0"
-
-    environment = {
-      KUBECONFIG = local.cluster_config
-    }
   }
 }
 
@@ -216,7 +212,7 @@ resource "null_resource" "delete-helm-github" {
 }
 
 resource "helm_release" "github" {
-  depends_on = [null_resource.delete-consolelink-github, null_resource.delete-helm-github]
+  depends_on = [null_resource.setup_kube_config, null_resource.delete-helm-github]
 
   name              = "github"
   chart             = "tool-config"
