@@ -60,7 +60,7 @@ resource "helm_release" "ibmcloud_config" {
   name         = local.ibmcloud_release_name
   chart        = "ibmcloud"
   repository   = "https://ibm-garage-cloud.github.io/toolkit-charts"
-  version      = "0.2.0"
+  version      = "0.2.1"
   namespace    = local.config_namespace
   force_update      = true
   replace           = true
