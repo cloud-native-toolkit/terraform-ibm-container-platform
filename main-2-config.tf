@@ -131,34 +131,7 @@ resource "helm_release" "ibmcloud_config" {
   }
 }
 
-resource "null_resource" "delete-consolelink-ir" {
-  count = local.cluster_type_code == "ocp4" ? 1 : 0
-  depends_on = [null_resource.setup_kube_config]
-
-  provisioner "local-exec" {
-    command = "kubectl delete consolelink -l grouping=garage-cloud-native-toolkit -l app=ir || exit 0"
-
-    environment = {
-      KUBECONFIG = local.cluster_config
-    }
-  }
-}
-
-resource "null_resource" "delete-helm-ir" {
-  depends_on = [null_resource.setup_kube_config]
-
-  provisioner "local-exec" {
-    command = "set +e; kubectl delete secret -n ${local.namespace} -l name=ir; kubectl delete secret -n ${local.namespace} -l name=registry; exit 0"
-
-    environment = {
-      KUBECONFIG = local.cluster_config
-    }
-  }
-}
-
 resource "helm_release" "image_registry" {
-  depends_on = [null_resource.delete-consolelink-ir, null_resource.delete-helm-ir]
-
   name              = "registry"
   chart             = "tool-config"
   namespace         = local.namespace
