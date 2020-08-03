@@ -54,8 +54,20 @@ resource "null_resource" "create_cluster_pull_secret_iks" {
   }
 }
 
-resource "helm_release" "ibmcloud_config" {
+resource "null_resource" "delete-helm-cloud-config" {
   depends_on = [null_resource.setup_kube_config]
+
+  provisioner "local-exec" {
+    command = "kubectl delete secret -n ${local.namespace} -l name=${local.ibmcloud_release_name} || exit 0"
+
+    environment = {
+      KUBECONFIG = local.cluster_config
+    }
+  }
+}
+
+resource "helm_release" "cloud_config" {
+  depends_on = [null_resource.setup_kube_config, null_resource.delete-helm-cloud-config]
 
   name         = local.ibmcloud_release_name
   chart        = "ibmcloud"
@@ -121,8 +133,20 @@ resource "helm_release" "ibmcloud_config" {
   }
 }
 
-resource "helm_release" "image_registry" {
+resource "null_resource" "delete-helm-image-registry" {
   depends_on = [null_resource.setup_kube_config]
+
+  provisioner "local-exec" {
+    command = "set +e; kubectl delete secret -n ${local.namespace} -l name=ir; kubectl delete secret -n ${local.namespace} -l name=registry; exit 0"
+
+    environment = {
+      KUBECONFIG = local.cluster_config
+    }
+  }
+}
+
+resource "helm_release" "image_registry" {
+  depends_on = [null_resource.setup_kube_config, null_resource.delete-helm-image-registry]
 
   name              = "registry"
   chart             = "tool-config"
@@ -175,8 +199,20 @@ resource "helm_release" "image_registry" {
   }
 }
 
-resource "helm_release" "github" {
+resource "null_resource" "delete-helm-github" {
   depends_on = [null_resource.setup_kube_config]
+
+  provisioner "local-exec" {
+    command = "kubectl delete secret -n ${local.namespace} -l name=github || exit 0"
+
+    environment = {
+      KUBECONFIG = local.cluster_config
+    }
+  }
+}
+
+resource "helm_release" "github" {
+  depends_on = [null_resource.setup_kube_config, null_resource.delete-helm-github]
 
   name              = "github"
   chart             = "tool-config"
