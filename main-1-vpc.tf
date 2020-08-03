@@ -7,15 +7,17 @@ locals {
 resource "ibm_is_vpc" "vpc" {
   count = !var.cluster_exists && var.is_vpc ? 1 : 0
 
-  name = "${local.cluster_name}-vpc"
+  name           = "${local.cluster_name}-vpc"
+  resource_group = data.ibm_resource_group.resource_group.id
 }
 
 resource "ibm_is_public_gateway" "vpc_gateway" {
   count = !var.cluster_exists && var.is_vpc ? length(local.vpc_zone_names) : 0
 
-  name  = "${local.cluster_name}-gateway-${format("%02s", count.index)}"
-  vpc   = ibm_is_vpc.vpc[0].id
-  zone  = local.vpc_zone_names[count.index]
+  name           = "${local.cluster_name}-gateway-${format("%02s", count.index)}"
+  vpc            = ibm_is_vpc.vpc[0].id
+  zone           = local.vpc_zone_names[count.index]
+  resource_group = data.ibm_resource_group.resource_group.id
 
   //User can configure timeouts
   timeouts {
