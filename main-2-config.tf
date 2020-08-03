@@ -148,7 +148,7 @@ resource "null_resource" "delete-helm-ir" {
   depends_on = [null_resource.setup_kube_config]
 
   provisioner "local-exec" {
-    command = "kubectl delete secret -n ${local.namespace} -l name=ir || exit 0"
+    command = "set +e; kubectl delete secret -n ${local.namespace} -l name=ir; kubectl delete secret -n ${local.namespace} -l name=registry; exit 0"
 
     environment = {
       KUBECONFIG = local.cluster_config
@@ -159,7 +159,7 @@ resource "null_resource" "delete-helm-ir" {
 resource "helm_release" "image_registry" {
   depends_on = [null_resource.delete-consolelink-ir, null_resource.delete-helm-ir]
 
-  name              = "ir"
+  name              = "registry"
   chart             = "tool-config"
   namespace         = local.namespace
   repository        = "https://ibm-garage-cloud.github.io/toolkit-charts/"
@@ -177,6 +177,26 @@ resource "helm_release" "image_registry" {
   set {
     name  = "url"
     value = "https://cloud.ibm.com/kubernetes/registry/main/images"
+  }
+
+  set {
+    name  = "privateUrl"
+    value = local.registry_url
+  }
+
+  set {
+    name  = "otherSecrets.namespace"
+    value = local.registry_namespace
+  }
+
+  set {
+    name  = "username"
+    value = "iamapikey"
+  }
+
+  set_sensitive {
+    name  = "password"
+    value = var.ibmcloud_api_key
   }
 
   set {
