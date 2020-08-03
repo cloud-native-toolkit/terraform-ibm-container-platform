@@ -132,6 +132,8 @@ resource "helm_release" "ibmcloud_config" {
 }
 
 resource "helm_release" "image_registry" {
+  depends_on = [null_resource.setup_kube_config]
+
   name              = "registry"
   chart             = "tool-config"
   namespace         = local.namespace
