@@ -122,3 +122,9 @@ variable "provision_cos" {
   description = "Flag indicating that the cos instance should be provisioned, if necessary"
   default     = true
 }
+
+variable "gitops_dir" {
+  type        = string
+  description = "Directory where the gitops repo content should be written"
+  default     = ""
+}

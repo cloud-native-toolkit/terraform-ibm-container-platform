@@ -53,7 +53,6 @@ locals {
   ibmcloud_release_name = "ibmcloud-config"
   registry_namespace    = var.registry_namespace != "" ? var.registry_namespace : var.resource_group_name
   vpc_zone_names        = var.vpc_zone_names
-  namespace             = "default"
 }
 
 resource "null_resource" "create_dirs" {

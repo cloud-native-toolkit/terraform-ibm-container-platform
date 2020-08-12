@@ -1,3 +1,55 @@
+locals {
+  gitops_dir   = var.gitops_dir != "" ? var.gitops_dir : "${path.cwd}/gitops"
+  chart_name   = "ibmcloud-setup"
+  chart_dir    = "${local.gitops_dir}/${local.chart_name}"
+  global_config = {
+    clusterType = local.cluster_type_code
+    ingressSubdomain = local.ingress_hostname
+    tlsSecretName = local.tls_secret
+  }
+  ibmcloud_config = {
+    apikey = var.ibmcloud_api_key
+    resource_group = var.resource_group_name
+    server_url = local.server_url
+    cluster_type = local.cluster_type
+    cluster_name = var.cluster_name
+    tls_secret_name = local.tls_secret
+    ingress_subdomain = local.ingress_hostname
+    region = var.cluster_region
+    cluster_version = local.cluster_version
+    registry_url = local.registry_url
+    registry_namespace = local.registry_namespace
+  }
+  github_config = {
+    name = "github"
+    displayName = "GitHub"
+    url = "https://github.com"
+    applicationMenu = true
+  }
+  imageregistry_config = {
+    name = "registry"
+    displayName = "Image Registry"
+    url = "https://cloud.ibm.com/kubernetes/registry/main/images"
+    privateUrl = local.registry_url
+    otherSecrets = {
+      namespace = local.registry_namespace
+    }
+    username = "iamapikey"
+    password = var.ibmcloud_api_key
+    applicationMenu = true
+  }
+  cntk_dev_guide_config = {
+    name = "cntk-dev-guide"
+    displayName = "Cloud-Native Toolkit"
+    url = "https://cloudnativetoolkit.dev"
+  }
+  first_app_config = {
+    name = "first-app"
+    displayName = "Deploy first app"
+    url = "https://cloudnativetoolkit.dev/getting-started/deploy-app"
+  }
+}
+
 data "ibm_container_cluster_config" "cluster" {
   depends_on        = [
     ibm_container_cluster.cluster,
@@ -54,90 +106,25 @@ resource "null_resource" "create_cluster_pull_secret_iks" {
   }
 }
 
+resource "null_resource" "setup-chart" {
+  provisioner "local-exec" {
+    command = "mkdir -p ${local.chart_dir} && cp -R ${path.module}/chart/${local.chart_name}/* ${local.chart_dir}"
+  }
+}
+
 resource "null_resource" "delete-helm-cloud-config" {
   depends_on = [null_resource.setup_kube_config]
 
   provisioner "local-exec" {
-    command = "kubectl delete secret -n ${local.namespace} -l name=${local.ibmcloud_release_name} || exit 0"
+    command = "kubectl delete secret -n ${local.config_namespace} -l name=${local.ibmcloud_release_name} || exit 0"
 
     environment = {
       KUBECONFIG = local.cluster_config
     }
   }
-}
-
-resource "helm_release" "cloud_config" {
-  depends_on = [null_resource.setup_kube_config, null_resource.delete-helm-cloud-config]
-
-  name         = local.ibmcloud_release_name
-  chart        = "ibmcloud"
-  repository   = "https://ibm-garage-cloud.github.io/toolkit-charts"
-  version      = "0.2.2"
-  namespace    = local.config_namespace
-  force_update      = true
-  replace           = true
-
-  set_sensitive {
-    name  = "apikey"
-    value = var.ibmcloud_api_key
-  }
-
-  set {
-    name  = "resource_group"
-    value = var.resource_group_name
-  }
-
-  set {
-    name  = "server_url"
-    value = local.server_url
-  }
-
-  set {
-    name  = "cluster_type"
-    value = local.cluster_type
-  }
-
-  set {
-    name  = "cluster_name"
-    value = var.cluster_name
-  }
-
-  set {
-    name  = "tls_secret_name"
-    value = local.tls_secret
-  }
-
-  set {
-    name  = "ingress_subdomain"
-    value = local.ingress_hostname
-  }
-
-  set {
-    name  = "region"
-    value = var.cluster_region
-  }
-
-  set {
-    name  = "registry_url"
-    value = local.registry_url
-  }
-
-  set {
-    name  = "cluster_version"
-    value = local.cluster_version
-  }
-
-  set {
-    name  = "registry_namespace"
-    value = local.registry_namespace
-  }
-}
-
-resource "null_resource" "delete-helm-image-registry" {
-  depends_on = [null_resource.setup_kube_config]
 
   provisioner "local-exec" {
-    command = "set +e; kubectl delete secret -n ${local.namespace} -l name=ir; kubectl delete secret -n ${local.namespace} -l name=registry; exit 0"
+    command = "kubectl delete secret -n ${local.config_namespace} -l name=cloud-setup || exit 0"
 
     environment = {
       KUBECONFIG = local.cluster_config
@@ -145,102 +132,39 @@ resource "null_resource" "delete-helm-image-registry" {
   }
 }
 
-resource "helm_release" "image_registry" {
-  depends_on = [null_resource.setup_kube_config, null_resource.delete-helm-image-registry]
+resource "local_file" "cloud-values" {
+  depends_on = [null_resource.setup-chart]
 
-  name              = "registry"
-  chart             = "tool-config"
-  namespace         = local.namespace
-  repository        = "https://ibm-garage-cloud.github.io/toolkit-charts/"
+  content  = yamlencode({
+    global = local.global_config
+    cloud-setup = {
+      ibmcloud = local.ibmcloud_config
+      github-config = local.github_config
+      imageregistry-config = local.imageregistry_config
+      cntk-dev-guide = local.cntk_dev_guide_config
+      first-app = local.first_app_config
+    }
+  })
+  filename = "${local.chart_dir}/values.yaml"
+}
+
+resource "null_resource" "print-values" {
+  provisioner "local-exec" {
+    command = "cat ${local_file.cloud-values.filename}"
+  }
+}
+
+resource "helm_release" "cloud_setup" {
+  depends_on = [null_resource.setup_kube_config, null_resource.delete-helm-cloud-config, local_file.cloud-values]
+
+  name              = "cloud-setup"
+  chart             = local.chart_dir
+  version           = "0.1.0"
+  namespace         = local.config_namespace
   timeout           = 1200
+  dependency_update = true
   force_update      = true
   replace           = true
 
   disable_openapi_validation = true
-
-  set {
-    name  = "displayName"
-    value = "Image Registry"
-  }
-
-  set {
-    name  = "url"
-    value = "https://cloud.ibm.com/kubernetes/registry/main/images"
-  }
-
-  set {
-    name  = "privateUrl"
-    value = local.registry_url
-  }
-
-  set {
-    name  = "otherSecrets.namespace"
-    value = local.registry_namespace
-  }
-
-  set {
-    name  = "username"
-    value = "iamapikey"
-  }
-
-  set_sensitive {
-    name  = "password"
-    value = var.ibmcloud_api_key
-  }
-
-  set {
-    name  = "applicationMenu"
-    value = true
-  }
-
-  set {
-    name  = "global.clusterType"
-    value = local.cluster_type_code
-  }
-}
-
-resource "null_resource" "delete-helm-github" {
-  depends_on = [null_resource.setup_kube_config]
-
-  provisioner "local-exec" {
-    command = "kubectl delete secret -n ${local.namespace} -l name=github || exit 0"
-
-    environment = {
-      KUBECONFIG = local.cluster_config
-    }
-  }
-}
-
-resource "helm_release" "github" {
-  depends_on = [null_resource.setup_kube_config, null_resource.delete-helm-github]
-
-  name              = "github"
-  chart             = "tool-config"
-  namespace         = local.namespace
-  repository        = "https://ibm-garage-cloud.github.io/toolkit-charts/"
-  timeout           = 1200
-  force_update      = true
-  replace           = true
-
-  disable_openapi_validation = true
-
-  set {
-    name  = "displayName"
-    value = "GitHub"
-  }
-
-  set {
-    name  = "url"
-    value = "https://github.com"
-  }
-
-  set {
-    name  = "applicationMenu"
-    value = true
-  }
-
-  set {
-    name  = "global.clusterType"
-    value = local.cluster_type_code
-  }
 }
