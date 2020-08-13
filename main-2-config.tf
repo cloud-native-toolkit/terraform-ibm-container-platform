@@ -178,6 +178,22 @@ resource "null_resource" "delete-helm-cloud-config" {
       KUBECONFIG = local.cluster_config
     }
   }
+
+  provisioner "local-exec" {
+    command = "kubectl delete secret -n ${local.config_namespace} cloud-access || exit 0"
+
+    environment = {
+      KUBECONFIG = local.cluster_config
+    }
+  }
+
+  provisioner "local-exec" {
+    command = "kubectl delete configmap -n ${local.config_namespace} cloud-config || exit 0"
+
+    environment = {
+      KUBECONFIG = local.cluster_config
+    }
+  }
 }
 
 resource "local_file" "cloud-values" {
