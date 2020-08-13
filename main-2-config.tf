@@ -148,7 +148,7 @@ resource "null_resource" "delete-helm-cloud-config" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl delete secret -n ${local.config_namespace} -l registry-access || exit 0"
+    command = "kubectl delete secret -n ${local.config_namespace} registry-access || exit 0"
 
     environment = {
       KUBECONFIG = local.cluster_config
@@ -156,7 +156,23 @@ resource "null_resource" "delete-helm-cloud-config" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl delete configmap -n ${local.config_namespace} -l registry-config || exit 0"
+    command = "kubectl delete configmap -n ${local.config_namespace} registry-config || exit 0"
+
+    environment = {
+      KUBECONFIG = local.cluster_config
+    }
+  }
+
+  provisioner "local-exec" {
+    command = "kubectl delete secret -n ${local.config_namespace} ibmcloud-apikey || exit 0"
+
+    environment = {
+      KUBECONFIG = local.cluster_config
+    }
+  }
+
+  provisioner "local-exec" {
+    command = "kubectl delete configmap -n ${local.config_namespace} ibmcloud-config || exit 0"
 
     environment = {
       KUBECONFIG = local.cluster_config
