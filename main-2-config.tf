@@ -132,7 +132,7 @@ resource "null_resource" "delete-helm-cloud-config" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl delete secret -n ${local.config_namespace} -l meta.helm.sh/release-name=github || exit 0"
+    command = "kubectl delete secret -n ${local.config_namespace} github-access || exit 0"
 
     environment = {
       KUBECONFIG = local.cluster_config
@@ -140,7 +140,7 @@ resource "null_resource" "delete-helm-cloud-config" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl delete configmap -n ${local.config_namespace} -l meta.helm.sh/release-name=github || exit 0"
+    command = "kubectl delete configmap -n ${local.config_namespace} github-config || exit 0"
 
     environment = {
       KUBECONFIG = local.cluster_config
@@ -148,7 +148,7 @@ resource "null_resource" "delete-helm-cloud-config" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl delete secret -n ${local.config_namespace} -l meta.helm.sh/release-name=registry || exit 0"
+    command = "kubectl delete secret -n ${local.config_namespace} -l registry-access || exit 0"
 
     environment = {
       KUBECONFIG = local.cluster_config
@@ -156,7 +156,7 @@ resource "null_resource" "delete-helm-cloud-config" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl delete configmap -n ${local.config_namespace} -l meta.helm.sh/release-name=registry || exit 0"
+    command = "kubectl delete configmap -n ${local.config_namespace} -l registry-config || exit 0"
 
     environment = {
       KUBECONFIG = local.cluster_config
