@@ -194,6 +194,22 @@ resource "null_resource" "delete-helm-cloud-config" {
       KUBECONFIG = local.cluster_config
     }
   }
+
+  provisioner "local-exec" {
+    command = "kubectl delete consolelink toolkit-github || exit 0"
+
+    environment = {
+      KUBECONFIG = local.cluster_config
+    }
+  }
+
+  provisioner "local-exec" {
+    command = "kubectl delete consolelink toolkit-registry || exit 0"
+
+    environment = {
+      KUBECONFIG = local.cluster_config
+    }
+  }
 }
 
 resource "local_file" "cloud-values" {
