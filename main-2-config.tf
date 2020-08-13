@@ -1,6 +1,6 @@
 locals {
   gitops_dir   = var.gitops_dir != "" ? var.gitops_dir : "${path.cwd}/gitops"
-  chart_name   = "ibmcloud-setup"
+  chart_name   = "cloud-setup"
   chart_dir    = "${local.gitops_dir}/${local.chart_name}"
   global_config = {
     clusterType = local.cluster_type_code
