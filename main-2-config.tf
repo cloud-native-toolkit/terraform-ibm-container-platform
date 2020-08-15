@@ -116,7 +116,7 @@ resource "null_resource" "delete-helm-cloud-config" {
   depends_on = [null_resource.setup_kube_config]
 
   provisioner "local-exec" {
-    command = "kubectl delete secret -n ${local.config_namespace} -l name=${local.ibmcloud_release_name} || exit 0"
+    command = "kubectl delete secret -n ${local.config_namespace} -l name=${local.ibmcloud_release_name} --ignore-not-found"
 
     environment = {
       KUBECONFIG = local.cluster_config
@@ -124,7 +124,7 @@ resource "null_resource" "delete-helm-cloud-config" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl delete secret -n ${local.config_namespace} -l name=cloud-setup || exit 0"
+    command = "kubectl delete secret -n ${local.config_namespace} -l name=cloud-setup --ignore-not-found"
 
     environment = {
       KUBECONFIG = local.cluster_config
@@ -132,7 +132,7 @@ resource "null_resource" "delete-helm-cloud-config" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl delete secret -n ${local.config_namespace} github-access || exit 0"
+    command = "kubectl delete secret -n ${local.config_namespace} github-access --ignore-not-found"
 
     environment = {
       KUBECONFIG = local.cluster_config
@@ -140,7 +140,7 @@ resource "null_resource" "delete-helm-cloud-config" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl delete configmap -n ${local.config_namespace} github-config || exit 0"
+    command = "kubectl delete configmap -n ${local.config_namespace} github-config --ignore-not-found"
 
     environment = {
       KUBECONFIG = local.cluster_config
@@ -148,7 +148,7 @@ resource "null_resource" "delete-helm-cloud-config" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl delete secret -n ${local.config_namespace} registry-access || exit 0"
+    command = "kubectl delete secret -n ${local.config_namespace} registry-access --ignore-not-found"
 
     environment = {
       KUBECONFIG = local.cluster_config
@@ -156,7 +156,7 @@ resource "null_resource" "delete-helm-cloud-config" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl delete configmap -n ${local.config_namespace} registry-config || exit 0"
+    command = "kubectl delete configmap -n ${local.config_namespace} registry-config --ignore-not-found"
 
     environment = {
       KUBECONFIG = local.cluster_config
@@ -164,7 +164,7 @@ resource "null_resource" "delete-helm-cloud-config" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl delete secret -n ${local.config_namespace} ibmcloud-apikey || exit 0"
+    command = "kubectl delete secret -n ${local.config_namespace} ibmcloud-apikey --ignore-not-found"
 
     environment = {
       KUBECONFIG = local.cluster_config
@@ -172,7 +172,7 @@ resource "null_resource" "delete-helm-cloud-config" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl delete configmap -n ${local.config_namespace} ibmcloud-config || exit 0"
+    command = "kubectl delete configmap -n ${local.config_namespace} ibmcloud-config --ignore-not-found"
 
     environment = {
       KUBECONFIG = local.cluster_config
@@ -180,7 +180,7 @@ resource "null_resource" "delete-helm-cloud-config" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl delete secret -n ${local.config_namespace} cloud-access || exit 0"
+    command = "kubectl delete secret -n ${local.config_namespace} cloud-access --ignore-not-found"
 
     environment = {
       KUBECONFIG = local.cluster_config
@@ -188,7 +188,7 @@ resource "null_resource" "delete-helm-cloud-config" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl delete configmap -n ${local.config_namespace} cloud-config || exit 0"
+    command = "kubectl delete configmap -n ${local.config_namespace} cloud-config --ignore-not-found"
 
     environment = {
       KUBECONFIG = local.cluster_config
@@ -196,7 +196,7 @@ resource "null_resource" "delete-helm-cloud-config" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl delete consolelink toolkit-github || exit 0"
+    command = "kubectl delete consolelink toolkit-github --ignore-not-found"
 
     environment = {
       KUBECONFIG = local.cluster_config
@@ -204,7 +204,7 @@ resource "null_resource" "delete-helm-cloud-config" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl delete consolelink toolkit-registry || exit 0"
+    command = "kubectl delete consolelink toolkit-registry --ignore-not-found"
 
     environment = {
       KUBECONFIG = local.cluster_config
