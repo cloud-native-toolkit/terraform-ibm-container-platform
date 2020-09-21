@@ -114,6 +114,7 @@ resource "null_resource" "setup-chart" {
 
 resource "null_resource" "delete-helm-cloud-config" {
   depends_on = [null_resource.setup_kube_config]
+  count      = var.cluster_type != "kubernetes" ? 1 : 0
 
   provisioner "local-exec" {
     command = "kubectl delete secret -n ${local.config_namespace} -l name=${local.ibmcloud_release_name} --ignore-not-found"
