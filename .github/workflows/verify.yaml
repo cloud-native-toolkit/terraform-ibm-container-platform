@@ -18,7 +18,7 @@ jobs:
 
     strategy:
       matrix:
-        platform: [ocp44_vpc]
+        platform: [iks118_vpc, ocp44_vpc]
 #      max-parallel: 1
       fail-fast: false
 
