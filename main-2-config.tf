@@ -114,7 +114,6 @@ resource "null_resource" "setup-chart" {
 
 resource "null_resource" "delete-helm-cloud-config" {
   depends_on = [null_resource.setup_kube_config]
-  count      = var.cluster_type != "kubernetes" ? 1 : 0
 
   provisioner "local-exec" {
     command = "kubectl delete secret -n ${local.config_namespace} -l name=${local.ibmcloud_release_name} --ignore-not-found"
@@ -195,6 +194,12 @@ resource "null_resource" "delete-helm-cloud-config" {
       KUBECONFIG = local.cluster_config
     }
   }
+}
+
+
+resource "null_resource" "delete-consolelink" {
+  depends_on = [null_resource.setup_kube_config]
+  count      = local.cluster_type_code == "ocp4" ? 1 : 0
 
   provisioner "local-exec" {
     command = "kubectl delete consolelink toolkit-github --ignore-not-found"
@@ -236,7 +241,7 @@ resource "null_resource" "print-values" {
 }
 
 resource "helm_release" "cloud_setup" {
-  depends_on = [null_resource.setup_kube_config, null_resource.delete-helm-cloud-config, local_file.cloud-values]
+  depends_on = [null_resource.setup_kube_config, null_resource.delete-helm-cloud-config, null_resource.delete-consolelink, local_file.cloud-values]
 
   name              = "cloud-setup"
   chart             = local.chart_dir
