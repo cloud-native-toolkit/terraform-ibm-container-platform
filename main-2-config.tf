@@ -20,24 +20,6 @@ locals {
     registry_url = local.registry_url
     registry_namespace = local.registry_namespace
   }
-  github_config = {
-    name = "github"
-    displayName = "GitHub"
-    url = "https://github.com"
-    applicationMenu = true
-  }
-  imageregistry_config = {
-    name = "registry"
-    displayName = "Image Registry"
-    url = "https://cloud.ibm.com/kubernetes/registry/main/images"
-    privateUrl = local.registry_url
-    otherSecrets = {
-      namespace = local.registry_namespace
-    }
-    username = "iamapikey"
-    password = var.ibmcloud_api_key
-    applicationMenu = true
-  }
   cntk_dev_guide_config = {
     name = "cntk-dev-guide"
     displayName = "Cloud-Native Toolkit"
@@ -132,38 +114,6 @@ resource "null_resource" "delete-helm-cloud-config" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl delete secret -n ${local.config_namespace} github-access --ignore-not-found"
-
-    environment = {
-      KUBECONFIG = local.cluster_config
-    }
-  }
-
-  provisioner "local-exec" {
-    command = "kubectl delete configmap -n ${local.config_namespace} github-config --ignore-not-found"
-
-    environment = {
-      KUBECONFIG = local.cluster_config
-    }
-  }
-
-  provisioner "local-exec" {
-    command = "kubectl delete secret -n ${local.config_namespace} registry-access --ignore-not-found"
-
-    environment = {
-      KUBECONFIG = local.cluster_config
-    }
-  }
-
-  provisioner "local-exec" {
-    command = "kubectl delete configmap -n ${local.config_namespace} registry-config --ignore-not-found"
-
-    environment = {
-      KUBECONFIG = local.cluster_config
-    }
-  }
-
-  provisioner "local-exec" {
     command = "kubectl delete secret -n ${local.config_namespace} ibmcloud-apikey --ignore-not-found"
 
     environment = {
@@ -225,8 +175,6 @@ resource "local_file" "cloud-values" {
     global = local.global_config
     cloud-setup = {
       ibmcloud = local.ibmcloud_config
-      github-config = local.github_config
-      imageregistry-config = local.imageregistry_config
       cntk-dev-guide = local.cntk_dev_guide_config
       first-app = local.first_app_config
     }
