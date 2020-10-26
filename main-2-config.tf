@@ -46,7 +46,7 @@ locals {
   first_app_config = {
     name = "first-app"
     displayName = "Deploy first app"
-    url = "https://cloudnativetoolkit.dev/getting-started/deploy-app"
+    url = "https://cloudnativetoolkit.dev/getting-started-day-1/deploy-app/"
   }
 }
 
