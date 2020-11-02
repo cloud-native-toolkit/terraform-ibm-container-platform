@@ -17,26 +17,6 @@ locals {
     ingress_subdomain = local.ingress_hostname
     region = var.cluster_region
     cluster_version = local.cluster_version
-    registry_url = local.registry_url
-    registry_namespace = local.registry_namespace
-  }
-  github_config = {
-    name = "github"
-    displayName = "GitHub"
-    url = "https://github.com"
-    applicationMenu = true
-  }
-  imageregistry_config = {
-    name = "registry"
-    displayName = "Image Registry"
-    url = "https://cloud.ibm.com/kubernetes/registry/main/images"
-    privateUrl = local.registry_url
-    otherSecrets = {
-      namespace = local.registry_namespace
-    }
-    username = "iamapikey"
-    password = var.ibmcloud_api_key
-    applicationMenu = true
   }
   cntk_dev_guide_config = {
     name = "cntk-dev-guide"
@@ -60,25 +40,6 @@ data "ibm_container_cluster_config" "cluster" {
   cluster_name_id   = local.cluster_name
   resource_group_id = data.ibm_resource_group.resource_group.id
   config_dir        = local.cluster_config_dir
-}
-
-# this should probably be moved to a separate module that operates at a namespace level
-resource "null_resource" "create_registry_namespace" {
-  depends_on = [null_resource.create_dirs, null_resource.ibmcloud_login]
-
-  provisioner "local-exec" {
-    command = "${path.module}/scripts/create-registry-namespace.sh ${local.registry_namespace} ${var.cluster_region} ${local.registry_url_file}"
-
-    environment = {
-      APIKEY = var.ibmcloud_api_key
-    }
-  }
-}
-
-data "local_file" "registry_url" {
-  depends_on = [null_resource.create_registry_namespace]
-
-  filename = local.registry_url_file
 }
 
 resource "null_resource" "setup_kube_config" {
@@ -132,38 +93,6 @@ resource "null_resource" "delete-helm-cloud-config" {
   }
 
   provisioner "local-exec" {
-    command = "kubectl delete secret -n ${local.config_namespace} github-access --ignore-not-found"
-
-    environment = {
-      KUBECONFIG = local.cluster_config
-    }
-  }
-
-  provisioner "local-exec" {
-    command = "kubectl delete configmap -n ${local.config_namespace} github-config --ignore-not-found"
-
-    environment = {
-      KUBECONFIG = local.cluster_config
-    }
-  }
-
-  provisioner "local-exec" {
-    command = "kubectl delete secret -n ${local.config_namespace} registry-access --ignore-not-found"
-
-    environment = {
-      KUBECONFIG = local.cluster_config
-    }
-  }
-
-  provisioner "local-exec" {
-    command = "kubectl delete configmap -n ${local.config_namespace} registry-config --ignore-not-found"
-
-    environment = {
-      KUBECONFIG = local.cluster_config
-    }
-  }
-
-  provisioner "local-exec" {
     command = "kubectl delete secret -n ${local.config_namespace} ibmcloud-apikey --ignore-not-found"
 
     environment = {
@@ -196,7 +125,6 @@ resource "null_resource" "delete-helm-cloud-config" {
   }
 }
 
-
 resource "null_resource" "delete-consolelink" {
   depends_on = [null_resource.setup_kube_config]
   count      = local.cluster_type_code == "ocp4" ? 1 : 0
@@ -225,8 +153,6 @@ resource "local_file" "cloud-values" {
     global = local.global_config
     cloud-setup = {
       ibmcloud = local.ibmcloud_config
-      github-config = local.github_config
-      imageregistry-config = local.imageregistry_config
       cntk-dev-guide = local.cntk_dev_guide_config
       first-app = local.first_app_config
     }

@@ -9,10 +9,6 @@ global:
 cloud-setup:
   ibmcloud: {}
 
-  github-config: {}
-
-  imageregistry-config: {}
-
   cntk-dev-guide: {}
 
   first-app: {}

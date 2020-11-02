@@ -99,12 +99,6 @@ variable "is_vpc" {
   default     = false
 }
 
-variable "registry_namespace" {
-  type        = string
-  description = "The namespace that will be created in the IBM Cloud image registry. If not provided the value will default to the resource group"
-  default     = ""
-}
-
 variable "ocp_entitlement" {
   type        = string
   description = "Value that is applied to the entitlements for OCP cluster provisioning"
