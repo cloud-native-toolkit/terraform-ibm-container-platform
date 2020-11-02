@@ -30,8 +30,6 @@ locals {
   cluster_config_dir    = "${path.cwd}/.kube"
   cluster_config        = "${local.cluster_config_dir}/config"
   cluster_type_file     = "${path.cwd}/.tmp/cluster_type.val"
-  registry_url_file     = "${path.cwd}/.tmp/registry_url.val"
-  registry_url          = data.local_file.registry_url.content
   name_prefix           = var.name_prefix != "" ? var.name_prefix : var.resource_group_name
   name_list             = [local.name_prefix, "cluster"]
   cluster_name          = var.cluster_name != "" ? var.cluster_name : join("-", local.name_list)
@@ -51,7 +49,6 @@ locals {
   cluster_type_tag      = local.cluster_type == "kubernetes" ? "iks" : "ocp"
   cluster_version       = local.cluster_type_cleaned == "ocp44" ? local.openshift_versions["4.4"] : (local.cluster_type_code == "ocp4" ? local.openshift_versions["4.3"] : (local.cluster_type_code == "ocp3" ? local.openshift_versions["3.1"] : ""))
   ibmcloud_release_name = "ibmcloud-config"
-  registry_namespace    = var.registry_namespace != "" ? var.registry_namespace : var.resource_group_name
   vpc_zone_names        = var.vpc_zone_names
 }
 

@@ -17,8 +17,6 @@ locals {
     ingress_subdomain = local.ingress_hostname
     region = var.cluster_region
     cluster_version = local.cluster_version
-    registry_url = local.registry_url
-    registry_namespace = local.registry_namespace
   }
   cntk_dev_guide_config = {
     name = "cntk-dev-guide"
@@ -42,25 +40,6 @@ data "ibm_container_cluster_config" "cluster" {
   cluster_name_id   = local.cluster_name
   resource_group_id = data.ibm_resource_group.resource_group.id
   config_dir        = local.cluster_config_dir
-}
-
-# this should probably be moved to a separate module that operates at a namespace level
-resource "null_resource" "create_registry_namespace" {
-  depends_on = [null_resource.create_dirs, null_resource.ibmcloud_login]
-
-  provisioner "local-exec" {
-    command = "${path.module}/scripts/create-registry-namespace.sh ${local.registry_namespace} ${var.cluster_region} ${local.registry_url_file}"
-
-    environment = {
-      APIKEY = var.ibmcloud_api_key
-    }
-  }
-}
-
-data "local_file" "registry_url" {
-  depends_on = [null_resource.create_registry_namespace]
-
-  filename = local.registry_url_file
 }
 
 resource "null_resource" "setup_kube_config" {
@@ -145,7 +124,6 @@ resource "null_resource" "delete-helm-cloud-config" {
     }
   }
 }
-
 
 resource "null_resource" "delete-consolelink" {
   depends_on = [null_resource.setup_kube_config]
