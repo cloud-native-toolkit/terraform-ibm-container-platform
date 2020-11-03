@@ -47,7 +47,7 @@ locals {
   # value should be ocp4, ocp3, or kubernetes
   cluster_type_code     = local.cluster_type_cleaned == "openshift" ? "ocp3" : (local.cluster_type_cleaned == "ocp44" ? "ocp4" : (local.cluster_type_cleaned == "iks" ? "kubernetes" : local.cluster_type_cleaned))
   cluster_type_tag      = local.cluster_type == "kubernetes" ? "iks" : "ocp"
-  cluster_version       = local.cluster_type_cleaned == "ocp44" ? local.openshift_versions["4.4"] : (local.cluster_type_code == "ocp4" ? local.openshift_versions["4.3"] : (local.cluster_type_code == "ocp3" ? local.openshift_versions["3.1"] : ""))
+  cluster_version       = local.cluster_type_cleaned == "ocp45" ? local.openshift_versions["4.5"] : local.cluster_type_cleaned == "ocp44" ? local.openshift_versions["4.4"] : (local.cluster_type_code == "ocp4" ? local.openshift_versions["4.3"] : (local.cluster_type_code == "ocp3" ? local.openshift_versions["3.1"] : ""))
   ibmcloud_release_name = "ibmcloud-config"
   vpc_zone_names        = var.vpc_zone_names
 }
