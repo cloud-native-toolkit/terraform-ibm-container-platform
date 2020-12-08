@@ -15,17 +15,29 @@ resource "null_resource" "ibmcloud_login" {
 }
 
 locals {
-  kubernetes_versions   = {
-    "kubernetes" = "1.17.7"
-    "iks"        = "1.17.7"
-    "iks1.15"    = "1.15.12"
-    "iks1.16"    = "1.16.11"
-    "iks1.17"    = "1.17.7"
-    "iks1.18"    = "1.18.4"
-    "openshift"  = "3.11.219_openshift"
-    "ocp3"       = "3.11.219_openshift"
-    "ocp4"       = "4.3.23_openshift"
-    "ocp44"      = "4.4.6_openshift"
+  cluster_types  = {
+    "kubernetes" = "kubernetes"
+    "iks"        = "kubernetes"
+    "openshift"  = "openshift"
+    "ocp3"       = "openshift"
+    "ocp4"       = "openshift"
+    "ocp44"      = "openshift"
+    "ocp44"      = "openshift"
+  }
+  cluster_type_codes = {
+    "kubernetes" = "kubernetes"
+    "iks"        = "kuberetes"
+    "openshift"  = "ocp3"
+    "ocp3"       = "ocp3"
+    "ocp4"       = "ocp4"
+    "ocp44"      = "ocp4" 
+    "ocp45"      = "ocp4"
+  }
+  openshift_version_map = {
+    "ocp3"       = "3.1"
+    "ocp4"       = "4.3"
+    "ocp44"      = "4.4" 
+    "ocp45"      = "4.5"
   }
   cluster_config_dir    = "${path.cwd}/.kube"
   cluster_config        = "${local.cluster_config_dir}/config"
@@ -43,11 +55,11 @@ locals {
   substr(version, 0, 3) => "${version}_openshift"
   }
   cluster_type_cleaned  = regex("(kubernetes|iks|openshift|ocp3|ocp44|ocp45|ocp4).*", var.cluster_type)[0]
-  cluster_type          = local.cluster_type_cleaned == "ocp3" ? "openshift" : (local.cluster_type_cleaned == "ocp44" ? "openshift" : (local.cluster_type_cleaned == "ocp4" ? "openshift" : (local.cluster_type_cleaned == "iks" ? "kubernetes" : local.cluster_type_cleaned)))
+  cluster_type          = local.cluster_types[local.cluster_type_cleaned]
   # value should be ocp4, ocp3, or kubernetes
-  cluster_type_code     = local.cluster_type_cleaned == "openshift" ? "ocp3" : (local.cluster_type_cleaned == "ocp44" ? "ocp4" : (local.cluster_type_cleaned == "iks" ? "kubernetes" : local.cluster_type_cleaned))
+  cluster_type_code     = local.cluster_type_codes[local.cluster_type_cleaned]
   cluster_type_tag      = local.cluster_type == "kubernetes" ? "iks" : "ocp"
-  cluster_version       = local.cluster_type_cleaned == "ocp45" ? local.openshift_versions["4.5"] : local.cluster_type_cleaned == "ocp44" ? local.openshift_versions["4.4"] : (local.cluster_type_code == "ocp4" ? local.openshift_versions["4.3"] : (local.cluster_type_code == "ocp3" ? local.openshift_versions["3.1"] : ""))
+  cluster_version       = local.cluster_type == "openshift" ? local.openshift_versions[local.openshift_version_map[local.cluster_type_cleaned]] : ""
   ibmcloud_release_name = "ibmcloud-config"
   vpc_zone_names        = var.vpc_zone_names
 }
