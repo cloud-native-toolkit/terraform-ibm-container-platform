@@ -36,7 +36,7 @@ locals {
       type_code = "ocp3"
       version   = "3.1"
     }
-    ocp4  = {
+    ocp43  = {
       type      = "openshift"
       type_code = "ocp4"
       version   = "4.3"
@@ -67,8 +67,8 @@ locals {
   for version in data.ibm_container_cluster_versions.cluster_versions.valid_openshift_versions:
   substr(version, 0, 3) => "${version}_openshift"
   }
-  cluster_regex         = "(${join("|", keys(local.config_values))}).*"
-  cluster_type_cleaned  = regex(local.cluster_regex, var.cluster_type)[0]
+  cluster_regex         = "(${join("|", keys(local.config_values))}|ocp4).*"
+  cluster_type_cleaned  = regex(local.cluster_regex, var.cluster_type)[0] == "ocp4" ? "ocp43" : regex(local.cluster_regex, var.cluster_type)[0]
   cluster_type          = local.config_values[local.cluster_type_cleaned].type
   # value should be ocp4, ocp3, or kubernetes
   cluster_type_code     = local.config_values[local.cluster_type_cleaned].type_code
@@ -81,6 +81,9 @@ locals {
 resource "null_resource" "create_dirs" {
   provisioner "local-exec" {
     command = "echo 'regex: ${local.cluster_regex}'"
+  }
+  provisioner "local-exec" {
+    command = "echo 'cluster_type_cleaned: ${local.cluster_type_cleaned}'"
   }
 
   provisioner "local-exec" {
