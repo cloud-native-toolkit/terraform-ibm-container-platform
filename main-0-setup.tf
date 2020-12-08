@@ -42,7 +42,7 @@ locals {
   for version in data.ibm_container_cluster_versions.cluster_versions.valid_openshift_versions:
   substr(version, 0, 3) => "${version}_openshift"
   }
-  cluster_type_cleaned  = regex("(kubernetes|iks|openshift|ocp3|ocp44|ocp4).*", var.cluster_type)[0]
+  cluster_type_cleaned  = regex("(kubernetes|iks|openshift|ocp3|ocp44|ocp45|ocp4).*", var.cluster_type)[0]
   cluster_type          = local.cluster_type_cleaned == "ocp3" ? "openshift" : (local.cluster_type_cleaned == "ocp44" ? "openshift" : (local.cluster_type_cleaned == "ocp4" ? "openshift" : (local.cluster_type_cleaned == "iks" ? "kubernetes" : local.cluster_type_cleaned)))
   # value should be ocp4, ocp3, or kubernetes
   cluster_type_code     = local.cluster_type_cleaned == "openshift" ? "ocp3" : (local.cluster_type_cleaned == "ocp44" ? "ocp4" : (local.cluster_type_cleaned == "iks" ? "kubernetes" : local.cluster_type_cleaned))
