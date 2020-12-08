@@ -80,9 +80,9 @@ locals {
 
 resource "null_resource" "create_dirs" {
   provisioner "local-exec" {
-    command = "echo ${local.cluster_regex}"
+    command = "echo 'regex: ${local.cluster_regex}'"
   }
-  
+
   provisioner "local-exec" {
     command = "mkdir -p ${local.tmp_dir}"
   }
