@@ -1,5 +1,3 @@
-name: Notify
-
 on:
   release:
     types: [published]
@@ -8,14 +6,11 @@ jobs:
   notify:
     runs-on: ubuntu-latest
 
-    env:
-      NOTIFY_SLUG: ibm-garage-cloud/ibm-garage-iteration-zero
-
     steps:
-      - name: Repository Dispatch
-        uses: peter-evans/repository-dispatch@v1
+      - name: Publish repository dispatch
+        uses: ibm-garage-cloud/action-repository-dispatch@main
         with:
-          token: ${{ secrets.TOKEN }}
-          repository: ibm-garage-cloud/ibm-garage-iteration-zero
-          event-type: new_release
-          client-payload: '{"repo": "${{ github.repository }}", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
+          notifyRepo: ibm-garage-cloud/ibm-garage-iteration-zero
+          eventType: released
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
