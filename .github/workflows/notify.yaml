@@ -12,6 +12,10 @@ jobs:
       NOTIFY_SLUG: ibm-garage-cloud/ibm-garage-iteration-zero
 
     steps:
-      - name: Publish repository dispatch
-        run: |
-          curl -XPOST -u "${{ secrets.USERNAME}}:${{secrets.TOKEN}}" -H "Accept: application/vnd.github.everest-preview+json" -H "Content-Type: application/json" https://api.github.com/repos/${{env.NOTIFY_SLUG}}/dispatches --data '{"event_type": "released"}'
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.TOKEN }}
+          repository: ibm-garage-cloud/ibm-garage-iteration-zero
+          event-type: new_release
+          client-payload: '{"repo": "${{ github.repository }}", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
