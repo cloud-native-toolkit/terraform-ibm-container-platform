@@ -81,6 +81,7 @@ locals {
   cluster_version       = local.cluster_type == "openshift" ? local.openshift_versions[local.config_values[local.cluster_type_cleaned].version] : ""
   ibmcloud_release_name = "ibmcloud-config"
   vpc_zone_names        = var.vpc_zone_names
+  cluster_id            = var.is_vpc ? data.ibm_container_vpc_cluster.config[0].id : data.ibm_container_cluster.config[0].id
 }
 
 resource "null_resource" "create_dirs" {

@@ -1,5 +1,5 @@
 output "id" {
-  value       = data.ibm_container_cluster_config.cluster.id
+  value       = local.cluster_id
   description = "ID of the cluster."
   depends_on  = [helm_release.cloud_setup]
 }
