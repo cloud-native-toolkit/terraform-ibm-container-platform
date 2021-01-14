@@ -12,11 +12,11 @@ resource "ibm_is_vpc" "vpc" {
 }
 
 resource "ibm_is_public_gateway" "vpc_gateway" {
-  count = !var.cluster_exists && var.is_vpc ? length(local.vpc_zone_names) : 0
+  count = !var.cluster_exists && var.is_vpc ? var.vpc_zone_count : 0
 
   name           = "${local.cluster_name}-gateway-${format("%02s", count.index)}"
   vpc            = ibm_is_vpc.vpc[0].id
-  zone           = local.vpc_zone_names[count.index]
+  zone           = "${var.cluster_region}-${count.index + 1}"
   resource_group = data.ibm_resource_group.resource_group.id
 
   //User can configure timeouts
@@ -26,10 +26,10 @@ resource "ibm_is_public_gateway" "vpc_gateway" {
 }
 
 resource "ibm_is_subnet" "vpc_subnet" {
-  count                    = !var.cluster_exists && var.is_vpc ? length(local.vpc_zone_names) : 0
+  count                    = !var.cluster_exists && var.is_vpc ? var.vpc_zone_count : 0
 
   name                     = "${local.cluster_name}-subnet-${format("%02s", count.index)}"
-  zone                     = local.vpc_zone_names[count.index]
+  zone                     = "${var.cluster_region}-${count.index + 1}"
   vpc                      = ibm_is_vpc.vpc[0].id
   public_gateway           = ibm_is_public_gateway.vpc_gateway[count.index].id
   total_ipv4_address_count = 256
@@ -37,7 +37,7 @@ resource "ibm_is_subnet" "vpc_subnet" {
 }
 
 resource "ibm_is_security_group_rule" "vpc_security_group_rule_tcp_k8s" {
-  count     = !var.cluster_exists && var.is_vpc ? length(local.vpc_zone_names) : 0
+  count     = !var.cluster_exists && var.is_vpc ? var.vpc_zone_count : 0
 
   group     = ibm_is_vpc.vpc[0].default_security_group
   direction = "inbound"
@@ -83,13 +83,13 @@ resource "ibm_container_vpc_cluster" "cluster" {
   wait_till         = "IngressReady"
 
   zones {
-    name      = local.vpc_zone_names[0]
+    name      = "${var.cluster_region}-1"
     subnet_id = ibm_is_subnet.vpc_subnet[0].id
   }
 }
 
 resource "ibm_container_vpc_worker_pool" "cluster_pool" {
-  count             = !var.cluster_exists && var.is_vpc ? length(local.vpc_zone_names) - 1 : 0
+  count             = !var.cluster_exists && var.is_vpc ? var.vpc_zone_count - 1 : 0
 
   cluster           = ibm_container_vpc_cluster.cluster[0].id
   worker_pool_name  = "${local.cluster_name}-wp-${format("%02s", count.index + 1)}"
@@ -99,7 +99,7 @@ resource "ibm_container_vpc_worker_pool" "cluster_pool" {
   resource_group_id = data.ibm_resource_group.resource_group.id
 
   zones {
-    name      = local.vpc_zone_names[count.index + 1]
+    name      = "${var.cluster_region}-${count.index + 2}"
     subnet_id = ibm_is_subnet.vpc_subnet[count.index + 1].id
   }
 }

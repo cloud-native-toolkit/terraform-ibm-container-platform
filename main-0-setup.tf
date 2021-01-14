@@ -80,7 +80,6 @@ locals {
   cluster_type_tag      = local.cluster_type == "kubernetes" ? "iks" : "ocp"
   cluster_version       = local.cluster_type == "openshift" ? local.openshift_versions[local.config_values[local.cluster_type_cleaned].version] : ""
   ibmcloud_release_name = "ibmcloud-config"
-  vpc_zone_names        = var.vpc_zone_names
 }
 
 resource "null_resource" "create_dirs" {

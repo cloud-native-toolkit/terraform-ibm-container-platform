@@ -55,10 +55,10 @@ variable "public_vlan_id" {
 }
 
 # VPC Variables
-variable "vpc_zone_names" {
-  type        = list(string)
-  description = "List of vpc zones"
-  default     = []
+variable "vpc_zone_count" {
+  type        = number
+  description = "Number of vpc zones"
+  default     = 0
 }
 
 variable "cluster_region" {
