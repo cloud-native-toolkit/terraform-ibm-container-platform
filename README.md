@@ -13,5 +13,5 @@ This module has the following pre-requisites in order to run:
 
 ## Dependencies
 
-- IBM Cloud Terraform provider >= 1.5.3
+- IBM Cloud Terraform provider >= 1.8.1
 - Helm >= 1.1.1

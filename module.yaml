@@ -1,7 +1,11 @@
 name: ibm-container-platform
 description: Provisions a new or connects to an existing IBM Cloud contaienr platform (Kubernetes or OpenShift)
+alias: cluster
 tags:
   - cluster
+  - ibm cloud
+  - kubernetes
+  - openshift
 versions:
   - platforms:
       - kubernetes
