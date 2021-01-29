@@ -1,8 +1,54 @@
 name: ibm-container-platform
 description: Provisions a new or connects to an existing IBM Cloud contaienr platform (Kubernetes or OpenShift)
-platforms:
-  - kubernetes
-  - ocp3
-  - ocp4
 tags:
   - cluster
+versions:
+  - platforms:
+      - kubernetes
+      - ocp3
+      - ocp4
+    dependencies: []
+    variables:
+      - name: resource_group_name
+        scope: global
+      - name: cluster_name
+        scope: global
+      - name: cluster_hardware
+        scope: global
+      - name: cluster_worker_count
+        scope: global
+      - name: cluster_machine_type
+        scope: global
+      - name: flavor
+        scope: module
+      - name: vlan_datacenter
+        scope: module
+      - name: private_vlan_id
+        scope: module
+      - name: public_vlan_id
+        scope: module
+      - name: vpc_zone_count
+        scope: module
+      - name: cluster_region
+        scope: global
+        alias: region
+      - nane: cluster_type
+        scope: global
+      - name: ibmcloud_api_key
+        scope: global
+      - name: cluster_exists
+        scope: global
+      - name: login_user
+        scope: module
+      - name: name_prefix
+        scope: global
+      - name: is_vpc
+        scope: module
+      - name: opc_entitlement
+        scope: module
+      - name: cos_name
+        scope: module
+      - name: provision_cos
+        scope: module
+      - name: gitops_dir
+        scope: global
