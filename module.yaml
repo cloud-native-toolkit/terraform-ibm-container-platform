@@ -36,7 +36,7 @@ versions:
       - name: cluster_region
         scope: global
         alias: region
-      - nane: cluster_type
+      - name: cluster_type
         scope: global
       - name: ibmcloud_api_key
         scope: global
