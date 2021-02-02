@@ -48,7 +48,7 @@ versions:
         scope: global
       - name: is_vpc
         scope: module
-      - name: opc_entitlement
+      - name: ocp_entitlement
         scope: module
       - name: cos_name
         scope: module
