@@ -108,7 +108,7 @@ data "ibm_container_vpc_cluster" "config" {
   count      = var.is_vpc ? 1 : 0
   depends_on = [ibm_container_vpc_cluster.cluster, null_resource.create_dirs]
 
-  cluster_name_id   = local.cluster_name
+  name              = local.cluster_name
   alb_type          = "public"
   resource_group_id = data.ibm_resource_group.resource_group.id
 }
