@@ -129,6 +129,159 @@ versions:
         description: Directory where the gitops repo content should be written
         default: ""
         optional: true
+    version: v1.20.8
+    outputs:
+      - name: id
+        description: ID of the cluster.
+      - name: name
+        description: Name of the cluster.
+      - name: resource_group_name
+        description: Name of the resource group containing the cluster.
+      - name: region
+        description: Region containing the cluster.
+      - name: ingress_hostname
+        description: (Deprecated) Ingress hostname of the cluster.
+      - name: server_url
+        description: The url of the control server.
+      - name: config_file_path
+        description: (Deprecated) Path to the config file for the cluster.
+      - name: type
+        description: (Deprecated, use platform.type) The type of cluster (openshift or ocp4 or ocp3 or kubernetes)
+      - name: type_code
+        description: (Deprecated, use platform.type_code) The type of cluster (openshift or ocp4 or ocp3 or kubernetes)
+      - name: platform
+        description: Configuration values for the cluster platform
+      - name: version
+        description: (Deprecated, use platform.version) The point release version number of cluster (3.11 or 4.3 or 1.16)
+      - name: login_user
+        description: (Deprecated) The username used to log into the openshift cli
+      - name: login_password
+        description: (Deprecated) The password used to log into the openshift cli
+      - name: tls_secret_name
+        description: (Deprecated) The name of the secret containin the tls information for the cluster
+      - name: tag
+        description: The tag based on the cluster type
+  - platforms:
+      - kubernetes
+      - ocp3
+      - ocp4
+    dependencies: []
+    variables:
+      - name: resource_group_name
+        scope: global
+        type: string
+        description: The name of the IBM Cloud resource group where the cluster will be created/can be found.
+      - name: cluster_name
+        scope: global
+        type: string
+        description: The name of the cluster that will be created within the resource group
+      - name: cluster_hardware
+        scope: global
+        type: string
+        description: The type of hardware for the cluster (shared, dedicated)
+        default: shared
+        optional: true
+      - name: cluster_worker_count
+        scope: global
+        type: number
+        description: The number of worker nodes that should be provisioned for classic infrastructure
+        default: 3
+        optional: true
+      - name: cluster_machine_type
+        scope: global
+        type: string
+        description: (Deprecated, use VPC) The machine type that will be provisioned for classic infrastructure
+        default: b3c.4x16
+        optional: true
+      - name: flavor
+        scope: module
+        type: string
+        description: (Deprecated, use VPC) The machine type that will be provisioned for classic infrastructure
+        default: b3c.4x16
+        optional: true
+      - name: vlan_datacenter
+        scope: module
+        type: string
+        description: (Deprecated, use VPC) The datacenter that should be used for classic infrastructure provisioning
+        default: ""
+        optional: true
+      - name: private_vlan_id
+        scope: module
+        type: string
+        description: (Deprecated, use VPC) The private vlan id that should be used for classic infrastructure provisioning
+        default: ""
+        optional: true
+      - name: public_vlan_id
+        scope: module
+        type: string
+        description: (Deprecated, use VPC) The public vlan id that should be used for classic infrastructure provisioning
+        default: ""
+        optional: true
+      - name: vpc_zone_count
+        scope: module
+        type: number
+        description: Number of vpc zones
+        default: 0
+        optional: true
+      - name: cluster_region
+        scope: global
+        alias: region
+        type: string
+        description: The IBM Cloud region where the cluster will be/has been installed.
+      - name: cluster_type
+        scope: global
+        type: string
+        description: The type of cluster that should be created (openshift or ocp3 or ocp4 or kubernetes)
+      - name: ibmcloud_api_key
+        scope: global
+        type: string
+        description: The IBM Cloud api token
+      - name: cluster_exists
+        scope: global
+        type: bool
+        description: Flag indicating if the cluster already exists (true or false)
+      - name: login_user
+        scope: module
+        type: string
+        description: The username to log in to openshift
+        default: apikey
+        optional: true
+      - name: name_prefix
+        scope: global
+        type: string
+        description: The prefix name for the service. If not provided it will default to the resource group name
+        default: ""
+        optional: true
+      - name: is_vpc
+        scope: module
+        type: bool
+        description: Flag indicating that the cluster uses vpc infrastructure
+        default: false
+        optional: true
+      - name: ocp_entitlement
+        scope: module
+        type: string
+        description: Value that is applied to the entitlements for OCP cluster provisioning
+        default: cloud_pak
+        optional: true
+      - name: cos_name
+        scope: module
+        type: string
+        description: (optional) The name of the cos instance that will be used for the OCP 4 vpc instance
+        default: ""
+        optional: true
+      - name: provision_cos
+        scope: module
+        type: bool
+        description: Flag indicating that the cos instance should be provisioned, if necessary
+        default: true
+        optional: true
+      - name: gitops_dir
+        scope: global
+        type: string
+        description: Directory where the gitops repo content should be written
+        default: ""
+        optional: true
     version: v1.20.7
     outputs:
       - name: id
