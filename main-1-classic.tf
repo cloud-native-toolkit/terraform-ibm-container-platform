@@ -2,7 +2,7 @@
 resource "ibm_container_cluster" "cluster" {
   count             = !var.cluster_exists && !var.is_vpc ? 1 : 0
 
-  name              = local.cluster_name
+  cluster_name_id   = local.cluster_name
   datacenter        = var.vlan_datacenter
   kube_version      = local.cluster_version
   machine_type      = var.cluster_machine_type

@@ -72,7 +72,7 @@ data "ibm_resource_instance" "cos_instance" {
 resource "ibm_container_vpc_cluster" "cluster" {
   count             = !var.cluster_exists && var.is_vpc ? 1 : 0
 
-  name              = local.cluster_name
+  cluster_name_id   = local.cluster_name
   vpc_id            = ibm_is_vpc.vpc[0].id
   flavor            = var.flavor
   worker_count      = var.cluster_worker_count
