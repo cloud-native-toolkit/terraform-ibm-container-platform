@@ -180,3 +180,10 @@ resource "helm_release" "cloud_setup" {
 
   disable_openapi_validation = true
 }
+
+resource "null_resource" "image_security" {
+
+  provisioner "local-exec" {
+    command = "ibmcloud oc cluster image-security ${var.image_security ? "enable" : "disable"} -c ${data.ibm_container_cluster_config.cluster.cluster_name_id}"
+  }
+}
