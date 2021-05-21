@@ -48,3 +48,9 @@ variable "vpc_cluster" {
   description = "Flag indicating that this is a vpc cluster"
   default     = false
 }
+
+variable "image_security" {
+  type        = bool
+  description = "Flag indicating that the image security will be enabled"
+  default     = true
+}

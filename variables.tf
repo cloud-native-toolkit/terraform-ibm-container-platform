@@ -122,3 +122,9 @@ variable "gitops_dir" {
   description = "Directory where the gitops repo content should be written"
   default     = ""
 }
+
+variable "image_security" {
+  type        = bool
+  description = "Flag indicating that the image security will be enabled"
+  default     = false
+}

@@ -9,4 +9,5 @@ module "dev_cluster" {
   ibmcloud_api_key        = var.ibmcloud_api_key
   name_prefix             = var.name_prefix
   is_vpc                  = var.vpc_cluster
+  image_security          = var.image_security
 }
