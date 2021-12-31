@@ -967,7 +967,7 @@ versions:
         alias: region
         type: string
         description: The IBM Cloud region where the cluster will be/has been installed.
-      - nane: cluster_type
+      - name: cluster_type
         scope: global
       - name: ibmcloud_api_key
         scope: global
@@ -1110,7 +1110,7 @@ versions:
         alias: region
         type: string
         description: The IBM Cloud region where the cluster will be/has been installed.
-      - nane: cluster_type
+      - name: cluster_type
         scope: global
       - name: ibmcloud_api_key
         scope: global
@@ -1251,7 +1251,7 @@ versions:
         alias: region
         type: string
         description: The IBM Cloud region where the cluster will be/has been installed.
-      - nane: cluster_type
+      - name: cluster_type
         scope: global
       - name: ibmcloud_api_key
         scope: global
