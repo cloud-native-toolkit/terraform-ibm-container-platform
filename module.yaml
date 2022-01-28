@@ -1,6 +1,8 @@
 name: ibm-container-platform
 description: Provisions a new or connects to an existing IBM Cloud container platform cluster (Kubernetes or OpenShift)
 alias: cluster
+interfaces:
+  - github.com/cloud-native-toolkit/automation-modules#cluster
 tags:
   - cluster
   - ibm cloud
